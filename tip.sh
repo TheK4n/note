@@ -1,6 +1,5 @@
 
 PREFIX="$HOME/.tips"
-GIT_DIR="$PREFIX/.git"
 
 bye() {
     echo "$(basename "$0"): Error: $1" 1>&2
