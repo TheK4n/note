@@ -28,7 +28,7 @@ cmd_edit() {
     $EDITOR "$PREFIX/$1"
 
     if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
-        git_add "$PREFIX/$1" "file"
+        git_add "$PREFIX/$1" "Edited tip $1"
         echo "Edited tip "$PREFIX/$1""
     fi
 }
@@ -42,6 +42,13 @@ cmd_show() {
     test -e "$PREFIX/$1" || bye "No tip in $PREFIX"
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
+}
+
+cmd_delete() {
+    test -n "$1" || bye "No tip name provided"
+    test -e "$PREFIX/$1" || bye "No tip in $PREFIX"
+    rm "$PREFIX/$1"
+    git_add "$PREFIX/$1" "Removed tip $1"
 }
 
 case "$1" in
