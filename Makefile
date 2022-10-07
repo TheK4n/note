@@ -11,4 +11,4 @@ install:
 	install -Dm755 $(SCRIPTNAME) $(DESTDIR)$(PREFIX)/bin/$(BINARY)
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(BINARY)
+	rm $(DESTDIR)$(PREFIX)/bin/$(BINARY)

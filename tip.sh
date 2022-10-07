@@ -1,4 +1,3 @@
-
 PREFIX="$HOME/.tips"
 
 bye() {

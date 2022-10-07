@@ -33,7 +33,7 @@ tip ls  # show all tips
 ```
 
 ```bash
-tip show someTip.md  # render tip in browser (localhost:6751)
+tip show someTip.md  # render tip in browser with autoreload (localhost:6751)
 ```
 
 ```bash
