@@ -23,11 +23,14 @@ git_commit() {
 }
 
 cmd_edit() {
+    last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
     test -n "$1" || bye "No tip name provided"
-    touch "$PREFIX/$1"
     $EDITOR "$PREFIX/$1"
-    git_add "$PREFIX/$1" "file"
-    echo "Edited tip "$PREFIX/$1""
+
+    if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
+        git_add "$PREFIX/$1" "file"
+        echo "Edited tip "$PREFIX/$1""
+    fi
 }
 
 cmd_list() {
