@@ -5,6 +5,26 @@ bye() {
     exit $2
 }
 
+cmd_usage() {
+    echo 'Usage:
+    tip init
+        Initialize new tip storage
+    tip ls
+        List tips
+    tip help
+        Show this text
+    tip edit (tip-name)
+        Creates or edit existing tip with $EDITOR, after save changes by git
+    tip show (tip-name)
+        Render tip in terminal by glow
+    tip render (tip-name)
+        Render tip in browser by grip in localhost:6751
+    tip rm (tip-name)
+        Removes tip
+    tip mv (tip-name) (new-tip-name)
+        Rename tip'
+}
+
 cmd_init() {
     test -e "$PREFIX" || \
     mkdir "$PREFIX"
@@ -62,7 +82,7 @@ case "$1" in
     render) shift;             cmd_render    "$@" ;;
     ls) shift;                 cmd_list  "$@" ;;
     edit) shift;               cmd_edit  "$@" ;;
-    delete|rm|remove) shift;   cmd_delete  "$@" ;;
+    rm) shift;                 cmd_delete  "$@" ;;
 
     *)                         cmd_list    "$@" ;;
 esac

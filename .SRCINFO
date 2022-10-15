@@ -1,0 +1,16 @@
+pkgbase = tip
+	pkgver = 0.1.1
+	pkgrel = 1
+	url = https://github.com/thek4n/tip
+	arch = any
+	license = MIT
+	makedepends = git
+	depends = git
+	optdepends = python3: for python-grip
+	optdepends = python-grip: render tips in browser
+	optdepends = glow: render tips in terminal
+	conflicts = tip
+	source = tip::git+https://github.com/thek4n/tip.git#branch=master
+	sha256sums = SKIP
+
+pkgname = tip
