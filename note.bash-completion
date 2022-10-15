@@ -1,6 +1,6 @@
 # Maintainer: thek4n
 
-_tip() {
+_note() {
     local cur opts
     local commands="init ls help show render edit rm"
     COMPREPLY=()
@@ -19,4 +19,4 @@ _tip() {
     return 0
 }
 
-complete -F _tip tip
+complete -F _note note

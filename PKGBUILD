@@ -1,6 +1,6 @@
 # Maintainer: thek4n
 
-pkgname='tip'
+pkgname='note'
 pkgver=0.1.1
 pkgrel=1
 pkgdesc=""
@@ -15,9 +15,9 @@ optdepends=(
   'glow: render tips in terminal'
 )
 makedepends=('git')
-url='https://github.com/thek4n/tip'
-conflicts=('tip')
-source=("$pkgname::git+https://github.com/thek4n/tip.git#branch=master")
+url='https://github.com/thek4n/note'
+conflicts=('note')
+source=("$pkgname::git+https://github.com/thek4n/note.git#branch=master")
 sha256sums=('SKIP')
 
 package() {

@@ -1,4 +1,4 @@
-PREFIX="$HOME/.tips"
+PREFIX="$HOME/.notes"
 
 bye() {
     echo "$(basename "$0"): Error: $1" 1>&2

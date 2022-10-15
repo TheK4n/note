@@ -1,6 +1,6 @@
 
 
-<h1 align="center">Tip</h1>
+<h1 align="center">Note</h1>
 
 <p align="center">
   <a href="https://github.com/TheK4n">
@@ -15,33 +15,33 @@
 <a id="chapter-0"></a>
 ## Project description 
 
-Simple tips storage mechanism
+Simple notes storage mechanism
 
 <a id="chapter-1"></a>
 ## Usage
 
 ```bash
-tip init  # initialize tip storage (~/.tips)
+note init  # initialize note storage (~/.notes)
 ```
 
 ```bash
-tip edit someTip.md  # create and edit tip with markdown syntax
+note edit someTip.md  # create and edit note with markdown syntax
 ```
 
 ```bash
-tip ls  # show all tips
+note ls  # show all tips
 ```
 
 ```bash
-tip render someTip.md  # render tip in browser with autoreload by grip (localhost:6751)
+note render someTip.md  # render note in browser with autoreload by grip (localhost:6751)
 ```
 
 ```bash
-tip show someTip.md  # render tip in terminal by glow
+note show someTip.md  # render note in terminal by glow
 ```
 
 ```bash
-tip rm someTip.md  # remove tip from tips storage
+note rm someTip.md  # remove note from tips storage
 ```
 
 <h1 align="center"><a href="#top">▲</a></h1>
