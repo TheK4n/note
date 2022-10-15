@@ -2,12 +2,12 @@
 
 _note() {
     local cur opts
-    local commands="init ls help show render edit rm"
+    local commands="init ls help show render edit rm mv"
     COMPREPLY=()
     if [[ $COMP_CWORD -gt 1 ]]; then
         local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
         case "${COMP_WORDS[1]}" in
-            edit|show|render|rm)
+            edit|show|render|rm|mv)
                 cur="${COMP_WORDS[COMP_CWORD]}"
                 opts=$(ls ~/.notes)
                 COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
