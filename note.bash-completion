@@ -9,7 +9,7 @@ _note() {
         case "${COMP_WORDS[1]}" in
             edit|show|render|rm)
                 cur="${COMP_WORDS[COMP_CWORD]}"
-                opts=$(ls ~/.tips)
+                opts=$(ls ~/.notes)
                 COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
                 ;;
         esac
