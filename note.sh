@@ -9,8 +9,6 @@ cmd_usage() {
     echo 'Usage:
     note init
         Initialize new note storage
-    note ls
-        List tips
     note edit (note-name)
         Creates or edit existing note with $EDITOR, after save changes by git
     note show (note-name)
@@ -78,7 +76,7 @@ cmd_delete() {
 
 cmd_rename() {
     test -n "$1" || bye "No note name provided"
-    test -e "$PREFIX/$1" || bye "No note $1 in $PREFIX"
+    test -e "$PREFIX/$1" || bye "No note in $PREFIX"
     test -n "$2" || bye "No new note name provided"
     test -e "$PREFIX/$2" && bye "Note $2 already exists"
     mv "$PREFIX/$1" "$PREFIX/$2"
@@ -92,7 +90,6 @@ case "$1" in
     help|--help) shift;        cmd_usage   "$@" ;;
     show) shift;               cmd_show    "$@" ;;
     render) shift;             cmd_render    "$@" ;;
-    ls) shift;                 cmd_list  "$@" ;;
     edit) shift;               cmd_edit  "$@" ;;
     rm) shift;                 cmd_delete  "$@" ;;
     mv) shift;                 cmd_rename  "$@" ;;
