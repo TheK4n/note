@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+
+
 PREFIX="$HOME/.notes"
 
 bye() {
