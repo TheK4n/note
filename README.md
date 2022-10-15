@@ -9,7 +9,8 @@
 </p>
 
 * [Project description](#chapter-0)
-* [Usage](#chapter-1)
+* [Installation](#chapter-1)
+* [Usage](#chapter-2)
 
 
 <a id="chapter-0"></a>
@@ -17,31 +18,31 @@
 
 Simple notes storage mechanism
 
-<a id="chapter-1"></a>
+
+## Installation
+
+### From AUR:
+```bash
+yay -S note
+```
+
+
+### Install from source:
+```bash
+git clone https://github.com/thek4n/note.git
+cd note-script
+make install
+```
+
+
+<a id="chapter-2"></a>
 ## Usage
 
 ```bash
-note init  # initialize note storage (~/.notes)
+note init
+note edit someNote.md
+note render so<Tab>  # open localhost:6751 in browser
 ```
 
-```bash
-note edit someTip.md  # create and edit note with markdown syntax
-```
-
-```bash
-note ls  # show all tips
-```
-
-```bash
-note render someTip.md  # render note in browser with autoreload by grip (localhost:6751)
-```
-
-```bash
-note show someTip.md  # render note in terminal by glow
-```
-
-```bash
-note rm someTip.md  # remove note from tips storage
-```
 
 <h1 align="center"><a href="#top">▲</a></h1>
