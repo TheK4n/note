@@ -21,17 +21,19 @@ Simple notes storage mechanism
 
 ## Installation
 
-### From AUR:
-```bash
-yay -S note
-```
-
 
 ### Install from source:
 ```bash
 git clone https://github.com/thek4n/note.git
 cd note-script
 make install
+```
+
+### Install by pacman (Recommended):
+```bash
+git clone https://github.com/thek4n/note.git
+cd note
+makepkg -sic
 ```
 
 
