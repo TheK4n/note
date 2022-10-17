@@ -1,9 +1,9 @@
 # Maintainer: thek4n
 
 pkgname='note'
-pkgver=0.1.1
+pkgver=1.0.0
 pkgrel=1
-pkgdesc=""
+pkgdesc="Simple CLI notes manager"
 arch=('any')
 license=('MIT')
 depends=(

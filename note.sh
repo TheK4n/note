@@ -37,18 +37,31 @@ git_add() {
 }
 
 git_commit() {
-    git -C "$PREFIX" commit -m "$1"
+    git -C "$PREFIX" commit -m "$1" 1>/dev/null
 }
 
 cmd_edit() {
-    last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
     test -n "$1" || bye "No note name provided"
+
+    if [ -e "$PREFIX/$1" ]; then
+        last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
+    else
+        echo "Creating new note '$1'"
+        last_modified_time=0
+    fi
+
     $EDITOR "$PREFIX/$1"
 
-    if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
-        git_add "$1"
-        git_commit "Edited note $1"
-        echo "Edited note "$PREFIX/$1""
+    if [ -e "$PREFIX/$1" ]; then
+        if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
+            git_add "$1"
+            git_commit "Edited note $1"
+            echo "Note '$1' has been edited"
+        else
+            echo "Note '$1' wasn\`t edited"
+        fi
+    else
+        echo "New note '$1' wasn\`t created"
     fi
 }
 
