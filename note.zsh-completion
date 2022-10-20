@@ -8,12 +8,12 @@ _note() {
     if (( CURRENT > 2)); then
         cmd=${words[2]}
         case "${cmd}" in
-            edit|show|render|rm|mv)
+            edit|show|render|rm|mv|ls)
                 _values -C "notes" $(find "$prefix" -mindepth 1 -maxdepth 1 -printf "%f\n" | grep -v ".git" | grep -v ".img")
                 ;;
         esac
     else
-        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note')
+        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes')
         _describe 'note commands' subcmds
     fi
 

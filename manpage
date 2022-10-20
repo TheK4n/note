@@ -15,27 +15,32 @@ CLI Notes manager
 Creates dirs ~/.notes and initialize git repository
 .RE
 .PP
-\fBedit (note)\fR
+\fBedit (NOTE)\fR
 .RS 4
 Creates or edit existing note with $EDITOR, after save changes
 .RE
 .PP
-\fBshow (note)\fR
+\fBls [NOTE]...\fR
+.RS 4
+List notes
+.RE
+.PP
+\fBshow (NOTE)\fR
 .RS 4
 Render note in terminal by glow
 .RE
 .PP
-\fBrender (note)\fR
+\fBrender (NOTE)\fR
 .RS 4
 Render note in browser by grip on localhost:6751
 .RE
 .PP
-\fBmv (note) (new-note-name)\fR
+\fBmv (NOTE) (new-note-name)\fR
 .RS 4
 Rename note
 .RE
 .PP
-\fBrm (note)\fR
+\fBrm (NOTE)\fR
 .RS 4
 Deletes note and commits
 .RE

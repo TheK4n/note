@@ -12,24 +12,30 @@ cmd_usage() {
     echo 'Usage:
     note init
         Initialize new note storage
-    note edit (note-name)
+    note edit (NOTE)
         Creates or edit existing note with $EDITOR, after save changes by git
-    note show (note-name)
+    note show (NOTE)
         Render note in terminal by glow
-    note render (note-name)
+    note render (NOTE)
         Render note in browser by grip in localhost:6751
-    note rm (note-name)
+    note rm (NOTE)
         Removes note
-    note mv (note-name) (new-note-name)
+    note mv (NOTE) (new-note-name)
         Rename note
     note help
-        Show this text'
+        Show this text
+    note ls [NOTE]...
+        List notes'
 }
 
 cmd_init() {
     test -e "$PREFIX" || \
     mkdir "$PREFIX"
     git init "$PREFIX"
+}
+
+die_if_name_not_entered() {
+    test -n "$1" || bye "Note name wasn\`t entered"
 }
 
 git_add() {
@@ -41,7 +47,7 @@ git_commit() {
 }
 
 cmd_edit() {
-    test -n "$1" || bye "No note name provided"
+    die_if_name_not_entered $1
 
     if [ -e "$PREFIX/$1" ]; then
         last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
@@ -66,35 +72,44 @@ cmd_edit() {
 }
 
 cmd_list() {
-    ls "$PREFIX"
+    cd $PREFIX
+    ls $*
 }
 
 cmd_show() {
-    test -n "$1" || bye "No note name provided"
-    test -e "$PREFIX/$1" || bye "No note in $PREFIX"
+    die_if_name_not_entered $1
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
     glow -p "$PREFIX/$1"
 }
 
+cmd_ls() {
+    if [ -z "$*" ]; then
+        cmd_list
+    else
+        cmd_list $*
+    fi
+}
+
 cmd_render() {
-    test -n "$1" || bye "No note name provided"
-    test -e "$PREFIX/$1" || bye "No note in $PREFIX"
+    die_if_name_not_entered $1
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
 }
 
 cmd_delete() {
-    test -n "$1" || bye "No note name provided"
-    test -e "$PREFIX/$1" || bye "No note in $PREFIX"
+    die_if_name_not_entered $1
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
     rm "$PREFIX/$1"
     git_add "$1"
     git_commit "Removed note $1"
 }
 
 cmd_rename() {
-    test -n "$1" || bye "No note name provided"
-    test -e "$PREFIX/$1" || bye "No note in $PREFIX"
-    test -n "$2" || bye "No new note name provided"
-    test -e "$PREFIX/$2" && bye "Note $2 already exists"
+    die_if_name_not_entered $1
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
+    test -n "$1" || bye "New note name wasn\`t entered"
+    test -e "$PREFIX/$2" && bye "Note '$2' already exists"
     mv "$PREFIX/$1" "$PREFIX/$2"
     git_add "$1"
     git_add "$2"
@@ -109,7 +124,8 @@ case "$1" in
     edit) shift;               cmd_edit  "$@" ;;
     rm) shift;                 cmd_delete  "$@" ;;
     mv) shift;                 cmd_rename  "$@" ;;
+    ls) shift;                 cmd_ls  "$@" ;;
 
-    *)                         cmd_list    "$@" ;;
+    *)                         cmd_usage    "$@" ;;
 esac
 exit 0
