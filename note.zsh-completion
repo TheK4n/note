@@ -13,7 +13,7 @@ _note() {
                 ;;
         esac
     else
-        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes')
+        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes' 'export:Export notes in tar.gz format, redirect output in stdout')
         _describe 'note commands' subcmds
     fi
 

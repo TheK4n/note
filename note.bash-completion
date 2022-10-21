@@ -2,7 +2,7 @@
 
 _note() {
     local cur opts
-    local commands="init help show render edit rm mv"
+    local commands="init help show render edit rm mv export"
     COMPREPLY=()
     if [[ $COMP_CWORD -gt 1 ]]; then
         local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"

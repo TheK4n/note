@@ -45,6 +45,11 @@ Rename note
 Deletes note and commits
 .RE
 .PP
+\fBexport\fR
+.RS 4
+Export notes in tar.gz format, redirects to stdout (use note export > notes.tar.gz)
+.RE
+.PP
 .SH OPTIONAL DEPENDENCIES
 python-grip, glow
 .SH AUTHOR
