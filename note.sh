@@ -25,7 +25,9 @@ cmd_usage() {
     note help
         Show this text
     note ls [NOTE]...
-        List notes'
+        List notes
+    note export
+        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)'
 }
 
 cmd_init() {
@@ -116,6 +118,10 @@ cmd_rename() {
     git_commit "Note $1 renamed to $2"
 }
 
+cmd_export() {
+    tar -C "$PREFIX" -czf - .
+}
+
 case "$1" in
     init) shift;               cmd_init    "$@" ;;
     help|--help) shift;        cmd_usage   "$@" ;;
@@ -125,6 +131,7 @@ case "$1" in
     rm) shift;                 cmd_delete  "$@" ;;
     mv) shift;                 cmd_rename  "$@" ;;
     ls) shift;                 cmd_ls  "$@" ;;
+    export) shift;             cmd_export  "$@" ;;
 
     *)                         cmd_usage    "$@" ;;
 esac
