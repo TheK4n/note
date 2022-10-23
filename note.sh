@@ -12,6 +12,8 @@ cmd_usage() {
     echo 'Usage:
     note init
         Initialize new note storage
+    note version
+        Print version and exit
     note edit (NOTE)
         Creates or edit existing note with $EDITOR, after save changes by git
     note show (NOTE)
@@ -28,6 +30,10 @@ cmd_usage() {
         List notes
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)'
+}
+
+cmd_version() {
+    echo "Note 1.2.1"
 }
 
 cmd_init() {
@@ -132,6 +138,7 @@ case "$1" in
     mv) shift;                 cmd_rename  "$@" ;;
     ls) shift;                 cmd_ls  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
+    version) shift;            cmd_version  "$@" ;;
 
     *)                         cmd_usage    "$@" ;;
 esac
