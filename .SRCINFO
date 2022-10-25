@@ -1,12 +1,13 @@
 pkgbase = note
 	pkgdesc = Simple CLI notes manager
-	pkgver = 1.3.1
+	pkgver = 1.4.0
 	pkgrel = 1
 	url = https://github.com/thek4n/note
 	arch = any
 	license = MIT
 	makedepends = git
 	depends = git
+	depends = tree
 	optdepends = python3: for python-grip
 	optdepends = python-grip: render tips in browser
 	optdepends = glow: render tips in terminal

@@ -10,14 +10,17 @@ _note() {
         case "${cmd}" in
             edit|show|render|rm|mv|ls)
                 if (( CURRENT > 3 )); then
-                    _values -C "note directories" $(find "$prefix" -type d -mindepth 1 -maxdepth 1 -printf "%f\n" | grep -v ".git" | grep -v ".img")
+                    _values -C "note directories" $(find "$prefix" -type d -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
                 else
-                    _values -C "notes" $(find "$prefix" -mindepth 1 -maxdepth 1 -printf "%f\n" | grep -v ".git" | grep -v ".img")
+                    _values -C "notes" $(find "$prefix" -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
                 fi
+                ;;
+            tree)
+                _values -C "note directories" $(find "$prefix" -type d -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
                 ;;
         esac
     else
-        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes' 'export:Export notes in tar.gz format, redirect output in stdout')
+        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes' 'export:Export notes in tar.gz format, redirect output in stdout' 'tree:Show tree of notes')
         _describe 'note commands' subcmds
     fi
 

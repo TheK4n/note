@@ -28,12 +28,14 @@ cmd_usage() {
         Show this text
     note ls [PATH_TO_NOTE]...
         List notes
+    note tree [PATH_TO_NOTE]...
+        Notes tree
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)'
 }
 
 cmd_version() {
-    echo "Note 1.3.1"
+    echo "Note 1.4.0"
 }
 
 cmd_init() {
@@ -125,6 +127,13 @@ cmd_ls() {
     fi
 }
 
+cmd_tree() {
+    die_if_invalid_path "$1"
+    test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
+    cd $PREFIX
+    tree -C $1
+}
+
 cmd_render() {
     die_if_name_not_entered "$1"
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
@@ -173,6 +182,7 @@ case "$1" in
     rm) shift;                 cmd_delete  "$@" ;;
     mv) shift;                 cmd_rename  "$@" ;;
     ls) shift;                 cmd_ls  "$@" ;;
+    tree) shift;               cmd_tree  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
     version) shift;            cmd_version  "$@" ;;
 

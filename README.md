@@ -54,7 +54,7 @@ note render so<Tab>  # open localhost:6751 in browser
 
 * [ ] Import from tar
 * [X] ~~Directories~~
-* [ ] Tree of notes
+* [X] ~~Tree of notes~~
 * [ ] Lock-file
 
 
