@@ -14,26 +14,26 @@ cmd_usage() {
         Initialize new note storage
     note version
         Print version and exit
-    note edit (NOTE)
+    note edit (PATH_TO_NOTE)
         Creates or edit existing note with $EDITOR, after save changes by git
-    note show (NOTE)
+    note show (PATH_TO_NOTE)
         Render note in terminal by glow
-    note render (NOTE)
+    note render (PATH_TO_NOTE)
         Render note in browser by grip in localhost:6751
-    note rm (NOTE)
+    note rm (PATH_TO_NOTE)
         Removes note
-    note mv (NOTE) (new-note-name)
+    note mv (PATH_TO_NOTE) (new-note-name)
         Rename note
     note help
         Show this text
-    note ls [NOTE]...
+    note ls [PATH_TO_NOTE]...
         List notes
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)'
 }
 
 cmd_version() {
-    echo "Note 1.2.1"
+    echo "Note 1.3.1"
 }
 
 cmd_init() {
@@ -43,7 +43,7 @@ cmd_init() {
 }
 
 die_if_name_not_entered() {
-    test -n "$1" || bye "Note name wasn\`t entered"
+    test -n "$1" || bye "Note name wasn\`t entered" 4
 }
 
 git_add() {
@@ -54,14 +54,36 @@ git_commit() {
     git -C "$PREFIX" commit -m "$1" 1>/dev/null
 }
 
+die_if_invalid_path() {
+    if [[ "$1" =~ ".." ]]; then
+        bye "Path can\`t contains '..'" 3
+    fi
+
+    if [[ "$1" = /* ]]; then
+        bye "Path can\`t start from '/'" 3
+    fi
+}
+
 cmd_edit() {
-    die_if_name_not_entered $1
+    die_if_name_not_entered "$1"
+    die_if_invalid_path "$1"
+
+    test -d "$PREFIX/$1" && bye "Can\`t edit directory '$1'" 2
 
     if [ -e "$PREFIX/$1" ]; then
         last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
     else
         echo "Creating new note '$1'"
         last_modified_time=0
+    fi
+
+    _new_dir_flag=""
+
+    _DIRNAME="$(dirname "$1")"
+
+    if [ ! -d "$PREFIX/$_DIRNAME" ]; then
+        mkdir "$PREFIX/$_DIRNAME"
+        _new_dir_flag="true"
     fi
 
     $EDITOR "$PREFIX/$1"
@@ -76,17 +98,22 @@ cmd_edit() {
         fi
     else
         echo "New note '$1' wasn\`t created"
+        if [ -n "$_new_dir_flag" ]; then
+            rm -r "$PREFIX/$_DIRNAME"
+        fi
     fi
 }
 
 cmd_list() {
+    die_if_invalid_path "$*"
     cd $PREFIX
-    ls $*
+    ls --color=always $*
 }
 
 cmd_show() {
-    die_if_name_not_entered $1
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
+    die_if_invalid_path "$1"
+    die_if_name_not_entered "$1"
+    test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     glow -p "$PREFIX/$1"
 }
 
@@ -99,25 +126,34 @@ cmd_ls() {
 }
 
 cmd_render() {
-    die_if_name_not_entered $1
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
+    die_if_name_not_entered "$1"
+    test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
 }
 
 cmd_delete() {
-    die_if_name_not_entered $1
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
-    rm "$PREFIX/$1"
+    die_if_invalid_path "$1"
+    die_if_name_not_entered "$1"
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
+    rm -r "$PREFIX/$1"
     git_add "$1"
     git_commit "Removed note $1"
 }
 
 cmd_rename() {
-    die_if_name_not_entered $1
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist"
-    test -n "$1" || bye "New note name wasn\`t entered"
-    test -e "$PREFIX/$2" && bye "Note '$2' already exists"
+    die_if_invalid_path "$2"
+    die_if_name_not_entered "$1"
+    die_if_name_not_entered "$2"
+    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
+    test -f "$PREFIX/$2" && bye "Note '$2' already exists" 2
+
+    _DIRNAME="$(dirname "$2")"
+
+    if [ ! -d "$PREFIX/$_DIRNAME" ]; then
+        mkdir "$PREFIX/$_DIRNAME"
+    fi
+
     mv "$PREFIX/$1" "$PREFIX/$2"
     git_add "$1"
     git_add "$2"

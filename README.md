@@ -11,6 +11,7 @@
 * [Project description](#chapter-0)
 * [Installation](#chapter-1)
 * [Usage](#chapter-2)
+* [Roadmap](#chapter-3)
 
 
 <a id="chapter-0"></a>
@@ -19,6 +20,7 @@
 Simple notes storage mechanism
 
 
+<a id="chapter-1"></a>
 ## Installation
 
 
@@ -45,6 +47,15 @@ note init
 note edit someNote.md
 note render so<Tab>  # open localhost:6751 in browser
 ```
+
+
+<a id="chapter-3"></a>
+## Roadmap
+
+* [ ] Import from tar
+* [X] ~~Directories~~
+* [ ] Tree of notes
+* [ ] Lock-file
 
 
 <h1 align="center"><a href="#top">▲</a></h1>
