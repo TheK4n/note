@@ -35,7 +35,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.4.0"
+    echo "Note 1.4.1"
 }
 
 cmd_init() {
@@ -131,7 +131,13 @@ cmd_tree() {
     die_if_invalid_path "$1"
     test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
     cd $PREFIX
-    tree -C $1
+
+    if [ -z "$1" ]; then
+        echo "Notes"
+    else
+        echo "$1"
+    fi
+    tree -N -C --noreport $1 | tail -n +2
 }
 
 cmd_render() {
