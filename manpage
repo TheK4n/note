@@ -1,5 +1,5 @@
 .\" Manpage for note.
-.TH man 1 "20 Feb 2022" "1.4.1" "note man page"
+.TH man 1 "20 Feb 2022" "1.4.2" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS

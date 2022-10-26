@@ -1,6 +1,19 @@
 #compdef note
 #autoload
 
+
+_note_complete_entries() {
+    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -type f -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+}
+
+_note_complete_subdirs() {
+    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -type d -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+}
+
+_note_complete_all() {
+    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+}
+
 _note() {
     local -a subcmds prefix
     prefix="$HOME/.notes"
@@ -8,15 +21,18 @@ _note() {
     if (( CURRENT > 2)); then
         cmd=${words[2]}
         case "${cmd}" in
-            edit|show|render|rm|mv|ls)
+            edit|show|render)
+                _note_complete_entries
+                ;;
+            mv|rm|ls)
                 if (( CURRENT > 3 )); then
-                    _values -C "note directories" $(find "$prefix" -type d -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
+                    _note_complete_all
                 else
-                    _values -C "notes" $(find "$prefix" -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
+                    _note_complete_all
                 fi
                 ;;
             tree)
-                _values -C "note directories" $(find "$prefix" -type d -mindepth 1 -not -name ".git" -not -name ".img" -not -path "$prefix/.git/*" -not -path "$prefix/.img/*" -printf "%f\n")
+                _note_complete_subdirs
                 ;;
         esac
     else
