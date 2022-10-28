@@ -8,6 +8,7 @@ bye() {
     exit $2
 }
 
+
 cmd_usage() {
     echo 'Usage:
     note init
@@ -31,11 +32,11 @@ cmd_usage() {
     note tree [PATH_TO_NOTE]...
         Notes tree
     note export
-        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)'
+        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
 }
 
 cmd_version() {
-    echo "Note 1.4.2"
+    echo "Note 1.4.3"
 }
 
 cmd_init() {
@@ -179,6 +180,40 @@ cmd_export() {
     tar -C "$PREFIX" -czf - .
 }
 
+_format_and_sort_completions() {
+    sed -e "s#${PREFIX}/\{0,1\}##" | sed '/^$/d' | sort
+    # "
+}
+
+_find_notes_to_complete() {
+    find "$PREFIX" -type d \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
+}
+
+cmd_complete_notes() {
+    _find_notes_to_complete '-type f'
+}
+
+cmd_complete_subdirs() {
+    _find_notes_to_complete '-type d'
+}
+
+cmd_complete_files() {
+    _find_notes_to_complete
+}
+
+cmd_complete_commands() {
+    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes'
+}
+
+cmd_complete() {
+    case "$1" in
+        notes) shift;    cmd_complete_notes "$@" ;;
+        subdirs) shift;  cmd_complete_subdirs "$@" ;;
+        files) shift;    cmd_complete_files "$@" ;;
+        commands) shift; cmd_complete_commands "$@" ;;
+    esac
+}
+
 case "$1" in
     init) shift;               cmd_init    "$@" ;;
     help|--help) shift;        cmd_usage   "$@" ;;
@@ -191,6 +226,7 @@ case "$1" in
     tree) shift;               cmd_tree  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
     version) shift;            cmd_version  "$@" ;;
+    complete) shift;           cmd_complete  "$@" ;;
 
     *)                         cmd_usage    "$@" ;;
 esac

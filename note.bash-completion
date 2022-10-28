@@ -2,14 +2,24 @@
 
 _note() {
     local cur opts
-    local commands="init help show render edit rm mv export"
+    local commands="init help show render edit rm ls mv export tree"
     COMPREPLY=()
     if [[ $COMP_CWORD -gt 1 ]]; then
         local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
         case "${COMP_WORDS[1]}" in
-            edit|show|render|rm|mv|tree)
+            edit|show|render)
                 cur="${COMP_WORDS[COMP_CWORD]}"
-                opts=$(ls ~/.notes)
+                opts=$(note complete notes)
+                COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
+                ;;
+            rm|mv|ls)
+                cur="${COMP_WORDS[COMP_CWORD]}"
+                opts=$(note complete files)
+                COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
+                ;;
+            tree)
+                cur="${COMP_WORDS[COMP_CWORD]}"
+                opts=$(note complete subdirs)
                 COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
                 ;;
         esac

@@ -2,41 +2,38 @@
 #autoload
 
 
-_note_complete_entries() {
-    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -type f -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+_note_complete_notes() {
+    _values -C "notes" $(note complete notes)
 }
 
 _note_complete_subdirs() {
-    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -type d -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+    _values -C "note directories" $(note complete subdirs)
 }
 
 _note_complete_all() {
-    _values -C "notes" $(find "$prefix" -type d \( -name .git -o -name .img \) -prune -o -print | sed -e "s#${prefix}/\{0,1\}##" | sed '/^$/d' | sort)
+    _values -C "notes" $(note complete files)
 }
 
 _note() {
-    local -a subcmds prefix
-    prefix="$HOME/.notes"
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
         case "${cmd}" in
             edit|show|render)
-                _note_complete_entries
+                _note_complete_notes
                 ;;
             mv|rm|ls)
-                if (( CURRENT > 3 )); then
-                    _note_complete_all
-                else
-                    _note_complete_all
-                fi
+                _note_complete_all
                 ;;
             tree)
                 _note_complete_subdirs
                 ;;
         esac
     else
-        subcmds=('init:Initialize new note storage in ~/.notes' 'edit:Creates or edit existing note with $EDITOR' 'show:Render note in terminal by glow' 'render:Render note in browser by grip in localhost:6751' 'rm:Remove note' 'mv:Rename note' 'ls:List notes' 'export:Export notes in tar.gz format, redirect output in stdout' 'tree:Show tree of notes')
+        old_ifs="$IFS"
+        IFS=';'
+        subcmds=($(note complete commands))
+        IFS="$old_ifs"
         _describe 'note commands' subcmds
     fi
 
