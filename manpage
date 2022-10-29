@@ -1,5 +1,5 @@
 .\" Manpage for note.
-.TH man 1 "20 Feb 2022" "1.4.3" "note man page"
+.TH man 1 "20 Feb 2022" "1.4.4" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS
@@ -48,6 +48,11 @@ reletes note and commits
 \fBexport\fR
 .RS 4
 Export notes in tar.gz format, redirects to stdout (use note export > notes.tar.gz)
+.RE
+.PP
+\fBtree [PATH_TO_SUBDIR]\fR
+.RS 4
+Show tree of notes in storage or subdirs
 .RE
 .PP
 \fBcomplete (command)\fR

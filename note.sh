@@ -29,14 +29,15 @@ cmd_usage() {
         Show this text
     note ls [PATH_TO_NOTE]...
         List notes
-    note tree [PATH_TO_NOTE]...
-        Notes tree
+    note tree [PATH_TO_SUBDIR]
+        Show notes in storage or subdir
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
+    exit 1
 }
 
 cmd_version() {
-    echo "Note 1.4.3"
+    echo "Note 1.4.4"
 }
 
 cmd_init() {
