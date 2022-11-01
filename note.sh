@@ -187,7 +187,7 @@ _format_and_sort_completions() {
 }
 
 _find_notes_to_complete() {
-    find "$PREFIX" -type d \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
+    find "$PREFIX" \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
 }
 
 cmd_complete_notes() {
