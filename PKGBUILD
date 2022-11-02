@@ -18,7 +18,7 @@ optdepends=(
 makedepends=('git')
 url='https://github.com/thek4n/note'
 conflicts=('note')
-source=("$pkgname::git+https://github.com/thek4n/note.git#branch=master")
+source=("$pkgname::git+https://github.com/thek4n/note.git#branch=release")
 sha256sums=('SKIP')
 
 package() {

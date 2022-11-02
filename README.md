@@ -27,7 +27,7 @@ Simple notes storage mechanism
 ### Install from source:
 ```bash
 git clone https://github.com/thek4n/note.git
-cd note-script
+cd note
 make install
 ```
 

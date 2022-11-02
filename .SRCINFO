@@ -12,7 +12,7 @@ pkgbase = note
 	optdepends = python-grip: render tips in browser
 	optdepends = glow: render tips in terminal
 	conflicts = note
-	source = note::git+https://github.com/thek4n/note.git#branch=master
+	source = note::git+https://github.com/thek4n/note.git#branch=release
 	sha256sums = SKIP
 
 pkgname = note
