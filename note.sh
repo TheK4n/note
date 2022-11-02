@@ -208,9 +208,9 @@ cmd_complete_commands() {
 
 cmd_complete() {
     case "$1" in
-        notes) shift;    cmd_complete_notes "$@" ;;
-        subdirs) shift;  cmd_complete_subdirs "$@" ;;
-        files) shift;    cmd_complete_files "$@" ;;
+        edit|show|render) shift;    cmd_complete_notes "$@" ;;
+        tree) shift;                cmd_complete_subdirs "$@" ;;
+        mv|rm|ls) shift;            cmd_complete_files "$@" ;;
         commands) shift; cmd_complete_commands "$@" ;;
     esac
 }
