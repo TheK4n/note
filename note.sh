@@ -187,7 +187,7 @@ _format_and_sort_completions() {
 }
 
 _find_notes_to_complete() {
-    find "$PREFIX" -type d \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
+    find "$PREFIX" \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
 }
 
 cmd_complete_notes() {
@@ -208,9 +208,9 @@ cmd_complete_commands() {
 
 cmd_complete() {
     case "$1" in
-        notes) shift;    cmd_complete_notes "$@" ;;
-        subdirs) shift;  cmd_complete_subdirs "$@" ;;
-        files) shift;    cmd_complete_files "$@" ;;
+        edit|show|render) shift;    cmd_complete_notes "$@" ;;
+        tree) shift;                cmd_complete_subdirs "$@" ;;
+        mv|rm|ls) shift;            cmd_complete_files "$@" ;;
         commands) shift; cmd_complete_commands "$@" ;;
     esac
 }

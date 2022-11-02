@@ -2,33 +2,16 @@
 #autoload
 
 
-_note_complete_notes() {
-    _values -C "notes" $(note complete notes)
-}
-
-_note_complete_subdirs() {
-    _values -C "note directories" $(note complete subdirs)
-}
-
-_note_complete_all() {
-    _values -C "notes" $(note complete files)
-}
-
 _note() {
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
-        case "${cmd}" in
-            edit|show|render)
-                _note_complete_notes
-                ;;
-            mv|rm|ls)
-                _note_complete_all
-                ;;
-            tree)
-                _note_complete_subdirs
-                ;;
-        esac
+        __completions=($(note complete "$cmd"))
+        if [ -n "$__completions" ]; then
+            _values -C "notes" $__completions
+        else
+            _files
+        fi
     else
         old_ifs="$IFS"
         IFS=';'
