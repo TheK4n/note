@@ -1,6 +1,6 @@
 pkgbase = note
 	pkgdesc = Simple CLI notes manager
-	pkgver = 1.4.5
+	pkgver = 1.4.6
 	pkgrel = 1
 	url = https://github.com/thek4n/note
 	arch = any
@@ -12,7 +12,7 @@ pkgbase = note
 	optdepends = python-grip: render tips in browser
 	optdepends = glow: render tips in terminal
 	conflicts = note
-	source = note::git+https://github.com/thek4n/note.git#branch=release
+	source = note::git+https://github.com/thek4n/note.git#branch=master
 	sha256sums = SKIP
 
 pkgname = note
