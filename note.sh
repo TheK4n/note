@@ -3,6 +3,16 @@
 
 PREFIX="$HOME/.notes"
 
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NOCOLOR='\033[0m'
+
+OK_MESSAGE="${GREEN}OK${NOCOLOR}"
+WARN_MESSAGE="${YELLOW}WARN${NOCOLOR}"
+ERROR_MESSAGE="${RED}ERROR${NOCOLOR}"
+
+
 bye() {
     echo "$(basename "$0"): Error: $1" 1>&2
     exit $2
@@ -33,6 +43,8 @@ cmd_usage() {
         Show notes in storage or subdir
     note find (NOTE_NAME)
         Find note with name
+    note checkhealth
+        Check installed dependencies and initialized storage
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
     exit 1
@@ -68,6 +80,14 @@ die_if_invalid_path() {
     if [[ "$1" = /* ]]; then
         bye "Path can\`t start from '/'" 3
     fi
+}
+
+_is_depends_installed() {
+    which "$1" &>/dev/null
+}
+
+die_if_depends_not_installed() {
+    _is_depends_installed "$1" || bye "'$1' not installed. Use 'note checkhealth'."
 }
 
 cmd_edit() {
@@ -119,6 +139,7 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
+    die_if_depends_not_installed "glow"
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     glow -p "$PREFIX/$1"
 }
@@ -133,6 +154,7 @@ cmd_ls() {
 
 cmd_tree() {
     die_if_invalid_path "$1"
+    die_if_depends_not_installed "tree"
 
     test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
     cd $PREFIX
@@ -147,6 +169,7 @@ cmd_tree() {
 
 cmd_render() {
     die_if_name_not_entered "$1"
+    die_if_depends_not_installed "grip"
 
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     echo "http://localhost:6751 in browser"
@@ -182,6 +205,7 @@ cmd_rename() {
 }
 
 cmd_find() {
+    die_if_depends_not_installed "find"
     find "$PREFIX" -iname "$1" | _exclude_prefix
 }
 
@@ -202,6 +226,43 @@ _find_notes_to_complete() {
     find "$PREFIX" \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
 }
 
+__is_note_storage_initialized() {
+    if [ -w "$PREFIX" ] && [ -w "$PREFIX/.git" ]; then
+        echo -e "$OK_MESSAGE"
+    else
+        echo -e "$WARN_MESSAGE"
+    fi
+}
+
+__error_if_depends_not_installed() {
+    if _is_depends_installed "$1"; then
+        echo -e "$OK_MESSAGE"
+    else
+        echo -e "$ERROR_MESSAGE"
+    fi
+}
+
+__warn_if_depends_not_installed() {
+    if _is_depends_installed "$1"; then
+        echo -e "$OK_MESSAGE"
+    else
+        echo -e "$WARN_MESSAGE"
+    fi
+}
+
+cmd_checkhealth() {
+    echo -e "Is note storage initialized?... $(__is_note_storage_initialized)"
+
+    echo -e "Is dependencies installed?..."
+    echo -e "\tgit $(__error_if_depends_not_installed git)"
+
+    echo -e "Is optional dependencies installed?..."
+    echo -e "\tglow $(__warn_if_depends_not_installed glow)"
+    echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
+    echo -e "\ttree $(__warn_if_depends_not_installed tree)"
+    echo -e "\tfind $(__warn_if_depends_not_installed find)"
+}
+
 cmd_complete_notes() {
     _find_notes_to_complete '-type f'
 }
@@ -215,7 +276,7 @@ cmd_complete_files() {
 }
 
 cmd_complete_commands() {
-    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes;find:Find note by name'
+    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes;find:Find note by name;checkhealth:Check installed dependencies and initialized storage'
 }
 
 cmd_complete() {
@@ -241,6 +302,7 @@ case "$1" in
     export) shift;             cmd_export  "$@" ;;
     version) shift;            cmd_version  "$@" ;;
     complete) shift;           cmd_complete  "$@" ;;
+    checkhealth) shift;        cmd_checkhealth  "$@" ;;
 
     *)                         cmd_usage    "$@" ;;
 esac

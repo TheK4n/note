@@ -14,6 +14,7 @@ optdepends=(
   'python-grip: render tips in browser'
   'glow: render tips in terminal'
   'tree: tree of notes'
+  'findutils: find notes'
 )
 makedepends=('git')
 url='https://github.com/thek4n/note'
