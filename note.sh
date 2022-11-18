@@ -11,6 +11,8 @@ bye() {
 
 cmd_usage() {
     echo 'Usage:
+    note help
+        Show this text
     note init
         Initialize new note storage
     note version
@@ -25,12 +27,12 @@ cmd_usage() {
         Removes note
     note mv (PATH_TO_NOTE) (new-note-name)
         Rename note
-    note help
-        Show this text
     note ls [PATH_TO_NOTE]...
         List notes
     note tree [PATH_TO_SUBDIR]
         Show notes in storage or subdir
+    note find (NOTE_NAME)
+        Find note with name
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
     exit 1
@@ -131,6 +133,7 @@ cmd_ls() {
 
 cmd_tree() {
     die_if_invalid_path "$1"
+
     test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
     cd $PREFIX
 
@@ -144,6 +147,7 @@ cmd_tree() {
 
 cmd_render() {
     die_if_name_not_entered "$1"
+
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
@@ -177,13 +181,21 @@ cmd_rename() {
     git_commit "Note $1 renamed to $2"
 }
 
+cmd_find() {
+    find "$PREFIX" -iname "$1" | _exclude_prefix
+}
+
 cmd_export() {
     tar -C "$PREFIX" -czf - .
 }
 
-_format_and_sort_completions() {
-    sed -e "s#${PREFIX}/\{0,1\}##" | sed '/^$/d' | sort
+_exclude_prefix() {
+    sed -e "s#${PREFIX}/\{0,1\}##"
     # "
+}
+
+_format_and_sort_completions() {
+    _exclude_prefix | sed '/^$/d' | sort
 }
 
 _find_notes_to_complete() {
@@ -203,7 +215,7 @@ cmd_complete_files() {
 }
 
 cmd_complete_commands() {
-    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes'
+    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes;find:Find note by name'
 }
 
 cmd_complete() {
@@ -225,6 +237,7 @@ case "$1" in
     mv) shift;                 cmd_rename  "$@" ;;
     ls) shift;                 cmd_ls  "$@" ;;
     tree) shift;               cmd_tree  "$@" ;;
+    find) shift;               cmd_find  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
     version) shift;            cmd_version  "$@" ;;
     complete) shift;           cmd_complete  "$@" ;;

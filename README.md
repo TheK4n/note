@@ -66,7 +66,7 @@ note render so<Tab>  # open localhost:6751 in browser
 * [ ] Synchronization
 * [ ] Import from tar
 * [ ] Lock-file
-* [ ] Search by notes
+* [X] ~~Search by notes~~
 * [X] ~~Directories~~
 * [X] ~~Tree of notes~~
 
