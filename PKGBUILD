@@ -2,18 +2,18 @@
 
 pkgname='note'
 pkgver=1.4.6
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple CLI notes manager"
 arch=('any')
 license=('MIT')
 depends=(
   'git'
-  'tree'
 )
 optdepends=(
   'python3: for python-grip'
   'python-grip: render tips in browser'
   'glow: render tips in terminal'
+  'tree: tree of notes'
 )
 makedepends=('git')
 url='https://github.com/thek4n/note'

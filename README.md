@@ -24,6 +24,17 @@ Simple notes storage mechanism
 ## Installation
 
 
+### Dependencies
+
+Dependencies:
+* git
+
+Optional dependencies:
+* grip - For render note in browser
+* glow - For render note in terminal
+* tree - Show tree of notes
+
+
 ### Install from source:
 ```bash
 git clone https://github.com/thek4n/note.git
@@ -52,10 +63,12 @@ note render so<Tab>  # open localhost:6751 in browser
 <a id="chapter-3"></a>
 ## Roadmap
 
+* [ ] Synchronization
 * [ ] Import from tar
+* [ ] Lock-file
+* [ ] Search by notes
 * [X] ~~Directories~~
 * [X] ~~Tree of notes~~
-* [ ] Lock-file
 
 
 <h1 align="center"><a href="#top">▲</a></h1>
