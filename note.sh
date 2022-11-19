@@ -51,7 +51,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.4.6"
+    echo "Note 1.5.0"
 }
 
 cmd_init() {
