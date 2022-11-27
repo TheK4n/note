@@ -15,7 +15,7 @@ _note() {
     else
         old_ifs="$IFS"
         IFS=';'
-        subcmds=($(note complete commands))
+        subcmds=($(note complete zsh_commands))
         IFS="$old_ifs"
         _describe 'note commands' subcmds
     fi
