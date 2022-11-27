@@ -9,7 +9,7 @@ _note() {
         opts=$(note complete "${COMP_WORDS[1]}")
         COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
     else
-        local commands="init help show render edit rm ls mv export tree"
+        local commands="$(note complete bash_commands)"
         COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
     fi
     return 0

@@ -51,7 +51,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.5.0"
+    echo "Note 1.5.1"
 }
 
 cmd_init() {
@@ -275,16 +275,40 @@ cmd_complete_files() {
     _find_notes_to_complete
 }
 
-cmd_complete_commands() {
-    echo 'init:Initialize new note storage in ~/.notes;edit:Creates or edit existing note with $EDITOR;show:Render note in terminal by glow;render:Render note in browser by grip in localhost:6751;rm:Remove note;mv:Rename note;ls:List notes;export:Export notes in tar.gz format, redirect output in stdout;tree:Show tree of notes;find:Find note by name;checkhealth:Check installed dependencies and initialized storage'
+complete_commands() {
+    echo 'init:Initialize new note storage in ~/.notes
+edit:Creates or edit existing note with $EDITOR
+show:Render note in terminal by glow
+render:Render note in browser by grip in localhost:6751
+rm:Remove note
+mv:Rename note
+ls:List notes
+export:Export notes in tar.gz format, redirect output in stdout
+tree:Show tree of notes
+find:Find note by name
+checkhealth:Check installed dependencies and initialized storage'
 }
+
+
+cmd_complete_bash_commands() {
+    for __command in $(complete_commands)
+    do
+            echo $__command | tr ":" '\n' | head -n 1
+    done
+}
+
+cmd_complete_zsh_commands() {
+    echo "$(complete_commands)" | tr "\n" ";" | head --bytes -1
+}
+
 
 cmd_complete() {
     case "$1" in
         edit|show|render) shift;    cmd_complete_notes "$@" ;;
         tree) shift;                cmd_complete_subdirs "$@" ;;
         mv|rm|ls) shift;            cmd_complete_files "$@" ;;
-        commands) shift; cmd_complete_commands "$@" ;;
+        bash_commands) shift; cmd_complete_bash_commands "$@" ;;
+        zsh_commands) shift;  cmd_complete_zsh_commands "$@" ;;
     esac
 }
 
@@ -300,7 +324,7 @@ case "$1" in
     tree) shift;               cmd_tree  "$@" ;;
     find) shift;               cmd_find  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
-    version) shift;            cmd_version  "$@" ;;
+    version|-V) shift;         cmd_version  "$@" ;;
     complete) shift;           cmd_complete  "$@" ;;
     checkhealth) shift;        cmd_checkhealth  "$@" ;;
 
