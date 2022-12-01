@@ -43,6 +43,8 @@ cmd_usage() {
         Show notes in storage or subdir
     note find (NOTE_NAME)
         Find note with name
+    note grep (PATTERN)
+        Find notes by pattern
     note checkhealth
         Check installed dependencies and initialized storage
     note export
@@ -51,7 +53,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.5.1"
+    echo "Note 1.6.0"
 }
 
 cmd_init() {
@@ -209,6 +211,10 @@ cmd_find() {
     find "$PREFIX" -iname "$1" | _exclude_prefix
 }
 
+cmd_grep() {
+    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
+}
+
 cmd_export() {
     tar -C "$PREFIX" -czf - .
 }
@@ -286,6 +292,7 @@ ls:List notes
 export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
 find:Find note by name
+grep:Find notes by pattern
 checkhealth:Check installed dependencies and initialized storage'
 }
 
@@ -323,6 +330,7 @@ case "$1" in
     ls) shift;                 cmd_ls  "$@" ;;
     tree) shift;               cmd_tree  "$@" ;;
     find) shift;               cmd_find  "$@" ;;
+    grep) shift;               cmd_grep  "$@" ;;
     export) shift;             cmd_export  "$@" ;;
     version|-V) shift;         cmd_version  "$@" ;;
     complete) shift;           cmd_complete  "$@" ;;
