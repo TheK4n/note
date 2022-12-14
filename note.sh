@@ -53,7 +53,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.6.0"
+    echo "Note 1.6.1"
 }
 
 cmd_init() {
@@ -208,7 +208,7 @@ cmd_rename() {
 
 cmd_find() {
     die_if_depends_not_installed "find"
-    find "$PREFIX" -iname "$1" | _exclude_prefix
+    find "$PREFIX" \( -name .git -o -name .img \) -prune -o -iname "$1" -print | _exclude_prefix
 }
 
 cmd_grep() {
