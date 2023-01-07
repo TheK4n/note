@@ -13,10 +13,7 @@ _note() {
             _files
         fi
     else
-        old_ifs="$IFS"
-        IFS=';'
-        subcmds=($(note complete zsh_commands))
-        IFS="$old_ifs"
+        IFS=';' subcmds=($(note complete zsh_commands))
         _describe 'note commands' subcmds
     fi
 
