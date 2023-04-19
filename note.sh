@@ -39,6 +39,8 @@ cmd_usage() {
         Rename note
     note ls [PATH_TO_NOTE]...
         List notes
+    note mkdir (PATH_TO_DIR)
+        Creates new directory and subdirs
     note tree [PATH_TO_SUBDIR]
         Show notes in storage or subdir
     note find (NOTE_NAME)
@@ -53,7 +55,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.6.1"
+    echo "Note 1.7.0"
 }
 
 cmd_init() {
@@ -110,7 +112,7 @@ cmd_edit() {
     _DIRNAME="$(dirname "$1")"
 
     if [ ! -d "$PREFIX/$_DIRNAME" ]; then
-        mkdir "$PREFIX/$_DIRNAME"
+        mkdir -p "$PREFIX/$_DIRNAME"
         _new_dir_flag="true"
     fi
 
@@ -127,7 +129,9 @@ cmd_edit() {
     else
         echo "New note '$1' wasn\`t created"
         if [ -n "$_new_dir_flag" ]; then
-            rm -r "$PREFIX/$_DIRNAME"
+            # removes only empty dirs recursively
+            cd "$PREFIX"
+            rmdir -p "$_DIRNAME"
         fi
     fi
 }
@@ -152,6 +156,13 @@ cmd_ls() {
     else
         cmd_list $*
     fi
+}
+
+cmd_mkdir() {
+    die_if_name_not_entered "$1"
+    die_if_invalid_path "$1"
+
+    mkdir -p "$PREFIX/$1"
 }
 
 cmd_tree() {
@@ -312,7 +323,7 @@ cmd_complete_zsh_commands() {
 cmd_complete() {
     case "$1" in
         edit|show|render) shift;    cmd_complete_notes "$@" ;;
-        tree) shift;                cmd_complete_subdirs "$@" ;;
+        tree|mkdir) shift;          cmd_complete_subdirs "$@" ;;
         mv|rm|ls) shift;            cmd_complete_files "$@" ;;
         bash_commands) shift; cmd_complete_bash_commands "$@" ;;
         zsh_commands) shift;  cmd_complete_zsh_commands "$@" ;;
@@ -328,6 +339,7 @@ case "$1" in
     rm) shift;                 cmd_delete  "$@" ;;
     mv) shift;                 cmd_rename  "$@" ;;
     ls) shift;                 cmd_ls  "$@" ;;
+    mkdir) shift;              cmd_mkdir  "$@" ;;
     tree) shift;               cmd_tree  "$@" ;;
     find) shift;               cmd_find  "$@" ;;
     grep) shift;               cmd_grep  "$@" ;;
