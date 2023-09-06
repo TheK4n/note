@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 
-PREFIX="$HOME/.notes"
+readonly PREFIX="$HOME/.notes"
 
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NOCOLOR='\033[0m'
+readonly GREEN='\033[0;32m'
+readonly RED='\033[0;31m'
+readonly YELLOW='\033[1;33m'
+readonly NOCOLOR='\033[0m'
 
-OK_MESSAGE="${GREEN}OK${NOCOLOR}"
-WARN_MESSAGE="${YELLOW}WARN${NOCOLOR}"
-ERROR_MESSAGE="${RED}ERROR${NOCOLOR}"
+readonly OK_MESSAGE="${GREEN}OK${NOCOLOR}"
+readonly WARN_MESSAGE="${YELLOW}WARN${NOCOLOR}"
+readonly ERROR_MESSAGE="${RED}ERROR${NOCOLOR}"
 
 
 bye() {
@@ -55,7 +55,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.7.0"
+    echo "Note 1.7.1"
 }
 
 cmd_init() {
@@ -304,7 +304,8 @@ export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
 find:Find note by name
 grep:Find notes by pattern
-checkhealth:Check installed dependencies and initialized storage'
+checkhealth:Check installed dependencies and initialized storage
+mkdir:Creates directory'
 }
 
 
