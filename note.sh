@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 
-readonly PREFIX="$HOME/.notes"
+readonly CONFIGFILE="$HOME/.notes-storage-path"
+readonly DEFAULT_PREFIX="$HOME/.notes"
 
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -20,11 +21,11 @@ bye() {
 
 
 cmd_usage() {
-    echo 'Usage:
+    echo "Usage:
     note help
         Show this text
-    note init
-        Initialize new note storage
+    note init [-p PATH]
+        Initialize new note storage in PATH(default=~/.notes)
     note version
         Print version and exit
     note edit (PATH_TO_NOTE)
@@ -50,17 +51,31 @@ cmd_usage() {
     note checkhealth
         Check installed dependencies and initialized storage
     note export
-        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
+        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
     exit 1
 }
 
 cmd_version() {
-    echo "Note 1.7.1"
+    echo "Note 1.8.0"
 }
 
 cmd_init() {
-    test -e "$PREFIX" || \
-    mkdir "$PREFIX"
+
+    PREFIX="$DEFAULT_PREFIX"
+
+    while getopts ":sp:" ARG; do
+        case "$ARG" in
+            p) if [ -n "$OPTARG" ]; then PREFIX="$OPTARG"; fi;;
+            *) bye "Wrong argument" 2 ;;
+        esac
+
+    done
+
+    echo "$PREFIX" > "$CONFIGFILE"
+
+    if [ ! -d "$PREFIX" ]; then
+        mkdir "$PREFIX"
+    fi
     git init "$PREFIX"
 }
 
@@ -138,7 +153,7 @@ cmd_edit() {
 
 cmd_list() {
     die_if_invalid_path "$*"
-    cd $PREFIX
+    cd "$PREFIX"
     ls --color=always $*
 }
 
@@ -170,7 +185,7 @@ cmd_tree() {
     die_if_depends_not_installed "tree"
 
     test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
-    cd $PREFIX
+    cd "$PREFIX"
 
     if [ -z "$1" ]; then
         echo "Notes"
@@ -293,7 +308,7 @@ cmd_complete_files() {
 }
 
 complete_commands() {
-    echo 'init:Initialize new note storage in ~/.notes
+    echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with $EDITOR
 show:Render note in terminal by glow
 render:Render note in browser by grip in localhost:6751
@@ -305,19 +320,19 @@ tree:Show tree of notes
 find:Find note by name
 grep:Find notes by pattern
 checkhealth:Check installed dependencies and initialized storage
-mkdir:Creates directory'
+mkdir:Creates directory"
 }
 
 
 cmd_complete_bash_commands() {
     for __command in $(complete_commands)
     do
-            echo $__command | tr ":" '\n' | head -n 1
+            echo "$__command" | tr ":" '\n' | head -n 1
     done
 }
 
 cmd_complete_zsh_commands() {
-    echo "$(complete_commands)" | tr "\n" ";" | head --bytes -1
+    complete_commands | tr "\n" ";" | head --bytes -1
 }
 
 
@@ -330,6 +345,12 @@ cmd_complete() {
         zsh_commands) shift;  cmd_complete_zsh_commands "$@" ;;
     esac
 }
+
+if [ ! -f "$CONFIGFILE" ]; then
+    bye "You need first initialize"
+else
+    PREFIX="$(cat "$CONFIGFILE")"
+fi
 
 case "$1" in
     init) shift;               cmd_init    "$@" ;;
