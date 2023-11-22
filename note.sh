@@ -79,6 +79,12 @@ cmd_init() {
     git init "$PREFIX"
 }
 
+die_if_not_initialized() {
+    if [ ! -f "$CONFIGFILE" ]; then
+        bye "You need to initialize: note init [-p PATH]" 2
+    fi
+}
+
 die_if_name_not_entered() {
     test -n "$1" || bye "Note name wasn\`t entered" 4
 }
@@ -110,8 +116,13 @@ die_if_depends_not_installed() {
 }
 
 cmd_edit() {
+
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
+
 
     test -d "$PREFIX/$1" && bye "Can\`t edit directory '$1'" 2
 
@@ -152,12 +163,18 @@ cmd_edit() {
 }
 
 cmd_list() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_invalid_path "$*"
     cd "$PREFIX"
     ls --color=always $*
 }
 
 cmd_show() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "glow"
@@ -166,6 +183,9 @@ cmd_show() {
 }
 
 cmd_ls() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     if [ -z "$*" ]; then
         cmd_list
     else
@@ -174,6 +194,9 @@ cmd_ls() {
 }
 
 cmd_mkdir() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
 
@@ -181,6 +204,9 @@ cmd_mkdir() {
 }
 
 cmd_tree() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_invalid_path "$1"
     die_if_depends_not_installed "tree"
 
@@ -196,6 +222,9 @@ cmd_tree() {
 }
 
 cmd_render() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "grip"
 
@@ -205,6 +234,9 @@ cmd_render() {
 }
 
 cmd_delete() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
@@ -214,6 +246,9 @@ cmd_delete() {
 }
 
 cmd_rename() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_invalid_path "$2"
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
@@ -233,15 +268,24 @@ cmd_rename() {
 }
 
 cmd_find() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name .img \) -prune -o -iname "$1" -print | _exclude_prefix
 }
 
 cmd_grep() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
 }
 
 cmd_export() {
+    die_if_not_initialized
+    PREFIX="$(cat "$CONFIGFILE")"
+
     tar -C "$PREFIX" -czf - .
 }
 
@@ -346,9 +390,7 @@ cmd_complete() {
     esac
 }
 
-if [ ! -f "$CONFIGFILE" ]; then
-    bye "You need first initialize"
-else
+if [ -f "$CONFIGFILE" ]; then
     PREFIX="$(cat "$CONFIGFILE")"
 fi
 

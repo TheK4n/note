@@ -2,7 +2,7 @@
 
 pkgname='note'
 pkgver=1.8.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple CLI notes manager"
 arch=('any')
 license=('MIT')
