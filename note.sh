@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 
+set -ueo pipefail
+shopt -s nullglob
+
 readonly CONFIGFILE="$HOME/.notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
@@ -52,11 +55,12 @@ cmd_usage() {
         Check installed dependencies and initialized storage
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
-    exit 1
+    exit 0
 }
 
 cmd_version() {
-    echo "Note 1.8.0"
+    echo "Note 1.8.1"
+    exit 0
 }
 
 cmd_init() {
@@ -77,10 +81,19 @@ cmd_init() {
         mkdir "$PREFIX"
     fi
     git init "$PREFIX"
+    exit 0
+}
+
+__is_note_storage_initialized() {
+    [ -r "$CONFIGFILE" ]
+    local prefix
+    prefix="$(cat "$CONFIGFILE")"
+    [ -d "$prefix" ]
+    [ -w "$prefix" ]
 }
 
 die_if_not_initialized() {
-    if [ ! -f "$CONFIGFILE" ]; then
+    if ! __is_note_storage_initialized; then
         bye "You need to initialize: note init [-p PATH]" 2
     fi
 }
@@ -116,16 +129,13 @@ die_if_depends_not_installed() {
 }
 
 cmd_edit() {
-
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
 
 
     test -d "$PREFIX/$1" && bye "Can\`t edit directory '$1'" 2
 
+    local last_modified_time
     if [ -e "$PREFIX/$1" ]; then
         last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
     else
@@ -133,13 +143,15 @@ cmd_edit() {
         last_modified_time=0
     fi
 
-    _new_dir_flag=""
+    local _new_dir_flag
+    _new_dir_flag=false
 
+    local _DIRNAME
     _DIRNAME="$(dirname "$1")"
 
     if [ ! -d "$PREFIX/$_DIRNAME" ]; then
         mkdir -p "$PREFIX/$_DIRNAME"
-        _new_dir_flag="true"
+        _new_dir_flag=true
     fi
 
     $EDITOR "$PREFIX/$1"
@@ -154,7 +166,7 @@ cmd_edit() {
         fi
     else
         echo "New note '$1' wasn\`t created"
-        if [ -n "$_new_dir_flag" ]; then
+        if $_new_dir_flag; then
             # removes only empty dirs recursively
             cd "$PREFIX"
             rmdir -p "$_DIRNAME"
@@ -163,18 +175,12 @@ cmd_edit() {
 }
 
 cmd_list() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_invalid_path "$*"
     cd "$PREFIX"
     ls --color=always $*
 }
 
 cmd_show() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "glow"
@@ -183,9 +189,7 @@ cmd_show() {
 }
 
 cmd_ls() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
+    die_if_invalid_path "$*"
     if [ -z "$*" ]; then
         cmd_list
     else
@@ -194,9 +198,6 @@ cmd_ls() {
 }
 
 cmd_mkdir() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
 
@@ -204,27 +205,19 @@ cmd_mkdir() {
 }
 
 cmd_tree() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
+    local path
+    path="${1:-.}"
 
-    die_if_invalid_path "$1"
+    die_if_invalid_path "$path"
     die_if_depends_not_installed "tree"
 
-    test -d "$PREFIX/$1" || bye "'$1' not a directory" 1
+    test -d "$PREFIX/$path" || bye "'$path' not a directory" 1
     cd "$PREFIX"
 
-    if [ -z "$1" ]; then
-        echo "Notes"
-    else
-        echo "$1"
-    fi
-    tree -N -C --noreport $1 | tail -n +2
+    tree -N -C --noreport "$path"
 }
 
 cmd_render() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "grip"
 
@@ -234,21 +227,15 @@ cmd_render() {
 }
 
 cmd_delete() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
-    rm -r "$PREFIX/$1"
+    rm -r "${PREFIX:?PREFIX is Null}/$1"
     git_add "$1"
     git_commit "Removed note $1"
 }
 
 cmd_rename() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_invalid_path "$2"
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
@@ -268,30 +255,20 @@ cmd_rename() {
 }
 
 cmd_find() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name .img \) -prune -o -iname "$1" -print | _exclude_prefix
 }
 
 cmd_grep() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
 }
 
 cmd_export() {
-    die_if_not_initialized
-    PREFIX="$(cat "$CONFIGFILE")"
-
     tar -C "$PREFIX" -czf - .
 }
 
 _exclude_prefix() {
     sed -e "s#${PREFIX}/\{0,1\}##"
-    # "
 }
 
 _format_and_sort_completions() {
@@ -302,11 +279,11 @@ _find_notes_to_complete() {
     find "$PREFIX" \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
 }
 
-__is_note_storage_initialized() {
-    if [ -w "$PREFIX" ] && [ -w "$PREFIX/.git" ]; then
+__error_if_storage_not_initialized() {
+    if __is_note_storage_initialized; then
         echo -e "$OK_MESSAGE"
     else
-        echo -e "$WARN_MESSAGE"
+        echo -e "$ERROR_MESSAGE"
     fi
 }
 
@@ -327,7 +304,7 @@ __warn_if_depends_not_installed() {
 }
 
 cmd_checkhealth() {
-    echo -e "Is note storage initialized?... $(__is_note_storage_initialized)"
+    echo -e "Is note storage initialized?... $(__error_if_storage_not_initialized)"
 
     echo -e "Is dependencies installed?..."
     echo -e "\tgit $(__error_if_depends_not_installed git)"
@@ -337,6 +314,7 @@ cmd_checkhealth() {
     echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
+    exit 0
 }
 
 cmd_complete_notes() {
@@ -348,30 +326,32 @@ cmd_complete_subdirs() {
 }
 
 cmd_complete_files() {
-    _find_notes_to_complete
+    _find_notes_to_complete '-type f,d'
 }
 
 complete_commands() {
-    echo "init:Initialize new note storage in ~/.notes
-edit:Creates or edit existing note with $EDITOR
-show:Render note in terminal by glow
-render:Render note in browser by grip in localhost:6751
-rm:Remove note
-mv:Rename note
-ls:List notes
-export:Export notes in tar.gz format, redirect output in stdout
-tree:Show tree of notes
-find:Find note by name
-grep:Find notes by pattern
-checkhealth:Check installed dependencies and initialized storage
-mkdir:Creates directory"
+    echo "init:Initialize new note storage in ~/.notes
+edit:Creates or edit existing note with $EDITOR
+show:Render note in terminal by glow
+render:Render note in browser by grip in localhost:6751
+rm:Remove note
+mv:Rename note
+ls:List notes
+export:Export notes in tar.gz format, redirect output in stdout
+tree:Show tree of notes
+find:Find note by name
+grep:Find notes by pattern
+mkdir:Creates directory
+checkhealth:Check installed dependencies and initialized storage"
 }
 
 
 cmd_complete_bash_commands() {
-    for __command in $(complete_commands)
+    local IFS=$'\n'
+    local cmd
+    for cmd in $(complete_commands)
     do
-            echo "$__command" | tr ":" '\n' | head -n 1
+        echo "$cmd" | cut -f1 -d":"
     done
 }
 
@@ -382,36 +362,39 @@ cmd_complete_zsh_commands() {
 
 cmd_complete() {
     case "$1" in
-        edit|show|render) shift;    cmd_complete_notes "$@" ;;
-        tree|mkdir) shift;          cmd_complete_subdirs "$@" ;;
-        mv|rm|ls) shift;            cmd_complete_files "$@" ;;
-        bash_commands) shift; cmd_complete_bash_commands "$@" ;;
-        zsh_commands) shift;  cmd_complete_zsh_commands "$@" ;;
+        edit|show|render) shift;  cmd_complete_notes          "$@" ;;
+        tree|mkdir) shift;        cmd_complete_subdirs        "$@" ;;
+        mv|rm|ls) shift;          cmd_complete_files          "$@" ;;
+        bash_commands) shift;     cmd_complete_bash_commands  "$@" ;;
+        zsh_commands) shift;      cmd_complete_zsh_commands   "$@" ;;
     esac
 }
 
-if [ -f "$CONFIGFILE" ]; then
-    PREFIX="$(cat "$CONFIGFILE")"
-fi
 
 case "$1" in
-    init) shift;               cmd_init    "$@" ;;
-    help|--help) shift;        cmd_usage   "$@" ;;
-    show) shift;               cmd_show    "$@" ;;
-    render) shift;             cmd_render    "$@" ;;
-    edit) shift;               cmd_edit  "$@" ;;
-    rm) shift;                 cmd_delete  "$@" ;;
-    mv) shift;                 cmd_rename  "$@" ;;
-    ls) shift;                 cmd_ls  "$@" ;;
-    mkdir) shift;              cmd_mkdir  "$@" ;;
-    tree) shift;               cmd_tree  "$@" ;;
-    find) shift;               cmd_find  "$@" ;;
-    grep) shift;               cmd_grep  "$@" ;;
-    export) shift;             cmd_export  "$@" ;;
-    version|-V) shift;         cmd_version  "$@" ;;
-    complete) shift;           cmd_complete  "$@" ;;
-    checkhealth) shift;        cmd_checkhealth  "$@" ;;
+    init) shift;         cmd_init         "$@" ;;
+    help|--help) shift;  cmd_usage        "$@" ;;
+    version|-V) shift;   cmd_version      "$@" ;;
+    checkhealth) shift;  cmd_checkhealth  "$@" ;;
+esac
 
-    *)                         cmd_usage    "$@" ;;
+die_if_not_initialized
+PREFIX="$(cat "$CONFIGFILE")"
+
+case "$1" in
+    show) shift;      cmd_show     "$@" ;;
+    render) shift;    cmd_render   "$@" ;;
+    edit) shift;      cmd_edit     "$@" ;;
+    rm) shift;        cmd_delete   "$@" ;;
+    mv) shift;        cmd_rename   "$@" ;;
+    ls) shift;        cmd_ls       "$@" ;;
+    mkdir) shift;     cmd_mkdir    "$@" ;;
+    tree) shift;      cmd_tree     "$@" ;;
+    find) shift;      cmd_find     "$@" ;;
+    grep) shift;      cmd_grep     "$@" ;;
+    export) shift;    cmd_export   "$@" ;;
+    complete) shift;  cmd_complete "$@" ;;
+
+    *)                cmd_usage    "$@" ;;
 esac
 exit 0
