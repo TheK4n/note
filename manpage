@@ -1,5 +1,5 @@
 .\" Manpage for note.
-.TH man 1 "20 Feb 2022" "1.8.1" "note man page"
+.TH man 1 "20 Feb 2022" "1.9.0" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS
@@ -10,14 +10,24 @@ CLI Notes manager
 
 .SH COMMANDS
 .PP
-\fBinit\fR
+\fBinit [-p PATH] [-r REMOTE]\fR
 .RS 4
-Creates dirs ~/.notes and initialize git repository
+Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
 .RE
 .PP
 \fBedit (PATH_TO_NOTE)\fR
 .RS 4
 Creates or edit existing note with $EDITOR, after save changes
+.RE
+.PP
+\fBsync\fR
+.RS 4
+Pull changes from remote note storage(in case of conflict, accepts yours changes)
+.RE
+.PP
+\fBgit ...\fR
+.RS 4
+Proxy commands to git
 .RE
 .PP
 \fBls [PATH_TO_NOTE]...\fR
@@ -94,6 +104,8 @@ python-grip, glow
 3   Invalid path
 
 4   Blank name
+
+5   Invalid arguments
 
 .SH AUTHOR
 Kan (thek4n@yandex.ru)

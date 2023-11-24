@@ -7,6 +7,9 @@ shopt -s nullglob
 readonly CONFIGFILE="$HOME/.notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
+readonly ORIGIN="origin"
+readonly BRANCH="master"
+
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
 readonly YELLOW='\033[1;33m'
@@ -27,8 +30,8 @@ cmd_usage() {
     echo "Usage:
     note help
         Show this text
-    note init [-p PATH]
-        Initialize new note storage in PATH(default=~/.notes)
+    note init [-p PATH] [-r REMOTE]
+        Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
     note version
         Print version and exit
     note edit (PATH_TO_NOTE)
@@ -53,24 +56,37 @@ cmd_usage() {
         Find notes by pattern
     note checkhealth
         Check installed dependencies and initialized storage
+    note sync
+        Pull changes from remote note storage(in case of conflict, accepts yours changes)
+    note git ...
+        Proxy commands to git
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
     exit 0
 }
 
 cmd_version() {
-    echo "Note 1.8.1"
+    echo "Note 1.9.0"
     exit 0
+}
+
+die_if_blank_argument() {
+    if [ -z "$1" ]; then
+        bye "Invalid argument" 5
+    fi
 }
 
 cmd_init() {
 
+    local remote_storage
+    remote_storage=""
     PREFIX="$DEFAULT_PREFIX"
 
-    while getopts ":sp:" ARG; do
+    while getopts ":sp:sr:" ARG; do
         case "$ARG" in
-            p) if [ -n "$OPTARG" ]; then PREFIX="$OPTARG"; fi;;
-            *) bye "Wrong argument" 2 ;;
+            p) die_if_blank_argument "$OPTARG"; PREFIX="$(realpath "$OPTARG")";;
+            r) die_if_blank_argument "$OPTARG"; remote_storage="$OPTARG";;
+            *) bye "Wrong argument" 5 ;;
         esac
 
     done
@@ -80,7 +96,11 @@ cmd_init() {
     if [ ! -d "$PREFIX" ]; then
         mkdir "$PREFIX"
     fi
-    git init "$PREFIX"
+    git init -b "$BRANCH" "$PREFIX"
+    if [ -n "$remote_storage" ]; then
+        git -C "$PREFIX" remote add origin "$remote_storage"
+        cmd_sync
+    fi
     exit 0
 }
 
@@ -102,8 +122,12 @@ die_if_name_not_entered() {
     test -n "$1" || bye "Note name wasn\`t entered" 4
 }
 
+cmd_git() {
+    git -C "$PREFIX" $*
+}
+
 git_add() {
-    git -C "$PREFIX" add "$PREFIX/$1"
+    git -C "$PREFIX" add "$1"
 }
 
 git_commit() {
@@ -267,6 +291,10 @@ cmd_export() {
     tar -C "$PREFIX" -czf - .
 }
 
+cmd_sync() {
+    cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit
+}
+
 _exclude_prefix() {
     sed -e "s#${PREFIX}/\{0,1\}##"
 }
@@ -342,6 +370,8 @@ tree:Show tree of notes
 find:Find note by name
 grep:Find notes by pattern
 mkdir:Creates directory
+sync:Pull changes from remote note storage(in case of conflict, accepts yours changes)
+git:Proxy commands to git
 checkhealth:Check installed dependencies and initialized storage"
 }
 
@@ -393,6 +423,8 @@ case "$1" in
     find) shift;      cmd_find     "$@" ;;
     grep) shift;      cmd_grep     "$@" ;;
     export) shift;    cmd_export   "$@" ;;
+    sync) shift;      cmd_sync     "$@" ;;
+    git) shift;       cmd_git      "$@" ;;
     complete) shift;  cmd_complete "$@" ;;
 
     *)                cmd_usage    "$@" ;;
