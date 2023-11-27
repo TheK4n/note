@@ -63,14 +63,28 @@ cmd_version() {
     exit 0
 }
 
+_validate_arg(){
+	if [[ $2 == -* ]]; then
+		bye "Option $1 requires an argument" 2
+	fi
+}
+
 cmd_init() {
 
     PREFIX="$DEFAULT_PREFIX"
 
-    while getopts ":sp:" ARG; do
-        case "$ARG" in
-            p) if [ -n "$OPTARG" ]; then PREFIX="$OPTARG"; fi;;
-            *) bye "Wrong argument" 2 ;;
+    while getopts ":p:" opt; do
+        case "$opt" in
+            p)
+                _validate_arg "-p" "$OPTARG"
+                if [ -n "$OPTARG" ]; then PREFIX="$OPTARG"; fi
+            ;;
+            :)
+                bye "Option -$OPTARG requires an argument" 2
+            ;;
+            \?)
+                bye "Wrong argument" 2
+            ;;
         esac
 
     done
