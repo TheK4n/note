@@ -46,7 +46,7 @@ make install
 ```bash
 git clone https://github.com/thek4n/note.git
 cd note
-makepkg -sic
+makepkg -sic && git clean -df
 ```
 
 
@@ -54,9 +54,11 @@ makepkg -sic
 ## Usage
 
 ```bash
-note init
+note init -p ~/.notes -r ssh://remote/home/user/.notes-storage
+note sync
 note edit someNote.md
 note render so<Tab>  # open localhost:6751 in browser
+note git push
 ```
 
 
