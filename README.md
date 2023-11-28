@@ -65,9 +65,8 @@ note git push
 <a id="chapter-3"></a>
 ## Roadmap
 
-* [ ] Synchronization
-* [ ] Import from tar
 * [ ] Lock-file
+* [X] ~~Synchronization~~
 * [X] ~~Search by notes~~
 * [X] ~~Directories~~
 * [X] ~~Tree of notes~~
