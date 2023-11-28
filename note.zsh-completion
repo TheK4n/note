@@ -6,12 +6,10 @@ _note() {
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
-        __completions=($(note complete "$cmd"))
-        if [ -n "$__completions" ]; then
-            _values -C "notes" $__completions
-        else
-            _files
-        fi
+        case "$cmd" in
+            edit|show|render|mv|rm|ls) _files -W "$(note show_storage)";;
+            tree|mkdir) _directories -W "$(note show_storage)";;
+        esac
     else
         IFS=';' subcmds=($(note complete zsh_commands))
         _describe 'note commands' subcmds
