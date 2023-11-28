@@ -1,6 +1,6 @@
 DESTDIR :=
 PREFIX := /usr/local
-SCRIPTNAME = note.sh
+SCRIPTNAME = ./note.sh
 BINARY = note
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 ZSHCOMPDIR ?= $(PREFIX)/share/zsh/site-functions
@@ -19,6 +19,13 @@ install:
 	@if which bash &>/dev/null; then \
 		install -vd "$(DESTDIR)$(BASHCOMPDIR)" && install -m 0644 note.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/note"; \
     fi
+
+test:
+	@bash -c 'for file in ./tests/*.sh; do $(SCRIPTNAME) init -p $$(mktemp -td "note.XXXXX"); bash "$$file"; done'
+	@$(SCRIPTNAME) init >/dev/null
+
+clean-test:
+	rm -rf /tmp/note.*
 
 uninstall:
 	rm "$(DESTDIR)$(PREFIX)/bin/$(BINARY)"

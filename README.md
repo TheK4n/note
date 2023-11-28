@@ -19,6 +19,12 @@
 
 Simple notes storage mechanism
 
+### Features
+
+* Synchronization by git
+* Preview markdown notes
+* Logging all notes changes with git
+
 
 <a id="chapter-1"></a>
 ## Installation
@@ -47,6 +53,11 @@ make install
 git clone https://github.com/thek4n/note.git
 cd note
 makepkg -sic && git clean -df
+```
+
+### Run tests
+```bash
+make test
 ```
 
 

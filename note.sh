@@ -222,7 +222,7 @@ cmd_show() {
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "glow"
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
-    glow -p "$PREFIX/$1"
+    ${CAT:-glow -p} "$PREFIX/$1"
 }
 
 cmd_ls() {
