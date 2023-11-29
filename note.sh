@@ -60,7 +60,7 @@ cmd_usage() {
         Pull changes from remote note storage(in case of conflict, accepts yours changes)
     note git ...
         Proxy commands to git
-    note show_storage
+    note --prefix
         Prints to stdout current notes storage
     note export
         Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
@@ -385,7 +385,7 @@ grep:Find notes by pattern
 mkdir:Creates directory
 sync:Pull changes from remote note storage(in case of conflict, accepts yours changes)
 git:Proxy commands to git
-show_storage:Prints to stdout current notes storage
+--prefix:Prints to stdout current notes storage
 checkhealth:Check installed dependencies and initialized storage"
 }
 
@@ -412,8 +412,8 @@ cmd_complete() {
         edit|show|render) shift;  cmd_complete_notes          "$@" ;;
         tree|mkdir) shift;        cmd_complete_subdirs        "$@" ;;
         mv|rm|ls) shift;          cmd_complete_files          "$@" ;;
-        bash_commands) shift;     cmd_complete_bash_commands  "$@" ;;
-        zsh_commands) shift;      cmd_complete_zsh_commands   "$@" ;;
+        bash) shift;              cmd_complete_bash_commands  "$@" ;;
+        zsh) shift;               cmd_complete_zsh_commands   "$@" ;;
     esac
 }
 
@@ -443,7 +443,7 @@ case "$1" in
     sync) shift;      cmd_sync     "$@" ;;
     git) shift;       cmd_git      "$@" ;;
     complete) shift;  cmd_complete "$@" ;;
-    show_storage) shift;  cmd_get_storage  "$@" ;;
+    --prefix) shift;  cmd_get_storage  "$@" ;;
 
     *)                cmd_usage    "$@" ;;
 esac

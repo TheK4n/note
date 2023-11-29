@@ -7,7 +7,7 @@ export CAT=cat
 
 script="./note.sh"
 subdir="someDir"
-storage="$($script show_storage)"
+storage="$($script --prefix)"
 
 echo ">>> $0 >>> Test creating dir $subdir"
 "$script" mkdir "$subdir"

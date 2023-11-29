@@ -6,12 +6,13 @@ _note() {
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
+        prefix="$(note --prefix)"
         case "$cmd" in
-            edit|show|render|mv|rm|ls) _files -W "$(note show_storage)";;
-            tree|mkdir) _directories -W "$(note show_storage)";;
+            edit|show|render|mv|rm|ls) _files -W "$prefix";;
+            tree|mkdir) _directories -W "$prefix";;
         esac
     else
-        IFS=';' subcmds=($(note complete zsh_commands))
+        IFS=';' subcmds=($(note complete zsh))
         _describe 'note commands' subcmds
     fi
 
