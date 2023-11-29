@@ -76,7 +76,7 @@ note git push
 <a id="chapter-3"></a>
 ## Roadmap
 
-* [ ] Lock-file
+* [X] ~~Lock-file~~
 * [X] ~~Synchronization~~
 * [X] ~~Search by notes~~
 * [X] ~~Directories~~

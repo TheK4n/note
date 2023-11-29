@@ -6,6 +6,7 @@ shopt -s nullglob
 
 readonly CONFIGFILE="$HOME/.notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
+readonly LOCKFILE="/tmp/note.lock"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
@@ -223,6 +224,7 @@ cmd_show() {
     die_if_depends_not_installed "glow"
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     ${CAT:-glow -p} "$PREFIX/$1"
+    exit 0
 }
 
 cmd_ls() {
@@ -232,6 +234,7 @@ cmd_ls() {
     else
         cmd_list $*
     fi
+    exit 0
 }
 
 cmd_mkdir() {
@@ -252,6 +255,7 @@ cmd_tree() {
     cd "$PREFIX"
 
     tree -N -C --noreport "$path"
+    exit 0
 }
 
 cmd_render() {
@@ -261,6 +265,7 @@ cmd_render() {
     test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
+    exit 0
 }
 
 cmd_delete() {
@@ -294,10 +299,12 @@ cmd_rename() {
 cmd_find() {
     die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name .img \) -prune -o -iname "$1" -print | _exclude_prefix
+    exit 0
 }
 
 cmd_grep() {
     grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
+    exit 0
 }
 
 cmd_export() {
@@ -405,6 +412,7 @@ cmd_complete_zsh_commands() {
 
 cmd_get_storage() {
     echo "$PREFIX"
+    exit 0
 }
 
 cmd_complete() {
@@ -415,6 +423,11 @@ cmd_complete() {
         bash) shift;              cmd_complete_bash_commands  "$@" ;;
         zsh) shift;               cmd_complete_zsh_commands   "$@" ;;
     esac
+    exit 0
+}
+
+_release_lock() {
+    rm "$LOCKFILE"
 }
 
 
@@ -425,25 +438,40 @@ case "$1" in
     checkhealth) shift;  cmd_checkhealth  "$@" ;;
 esac
 
+
 die_if_not_initialized
 PREFIX="$(cat "$CONFIGFILE")"
+
 
 case "$1" in
     show) shift;      cmd_show     "$@" ;;
     render) shift;    cmd_render   "$@" ;;
-    edit) shift;      cmd_edit     "$@" ;;
-    rm) shift;        cmd_delete   "$@" ;;
-    mv) shift;        cmd_rename   "$@" ;;
     ls) shift;        cmd_ls       "$@" ;;
-    mkdir) shift;     cmd_mkdir    "$@" ;;
     tree) shift;      cmd_tree     "$@" ;;
     find) shift;      cmd_find     "$@" ;;
     grep) shift;      cmd_grep     "$@" ;;
+    complete) shift;  cmd_complete "$@" ;;
+    --prefix) shift;  cmd_get_storage  "$@" ;;
+esac
+
+
+if [ -e "$LOCKFILE" ]; then
+    bye "Seems another process is running. If not, just delete /tmp/note.lock" 6
+fi
+touch "$LOCKFILE"
+
+trap _release_lock ERR
+trap _release_lock EXIT
+
+
+case "$1" in
+    edit) shift;      cmd_edit     "$@" ;;
+    rm) shift;        cmd_delete   "$@" ;;
+    mv) shift;        cmd_rename   "$@" ;;
+    mkdir) shift;     cmd_mkdir    "$@" ;;
     export) shift;    cmd_export   "$@" ;;
     sync) shift;      cmd_sync     "$@" ;;
     git) shift;       cmd_git      "$@" ;;
-    complete) shift;  cmd_complete "$@" ;;
-    --prefix) shift;  cmd_get_storage  "$@" ;;
 
     *)                cmd_usage    "$@" ;;
 esac
