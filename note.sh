@@ -6,7 +6,10 @@ shopt -s nullglob
 
 readonly CONFIGFILE="$HOME/.notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
-readonly LOCKFILE="/tmp/note.lock"
+
+declare LOCKFILE
+LOCKFILE="$(dirname "$(mktemp -u)")/note.lock"
+readonly LOCKFILE
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
@@ -69,7 +72,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.11.0"
+    echo "Note 1.11.1"
     exit 0
 }
 
@@ -456,7 +459,7 @@ esac
 
 
 if [ -e "$LOCKFILE" ]; then
-    bye "Seems another process is running. If not, just delete /tmp/note.lock" 6
+    bye "Seems another process is running. If not, just delete $LOCKFILE" 6
 fi
 touch "$LOCKFILE"
 
