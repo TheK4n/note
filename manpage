@@ -1,10 +1,23 @@
 .\" Manpage for note.
-.TH man 1 "20 Feb 2022" "1.10.0" "note man page"
+.TH man 1 "20 Feb 2022" "1.11.0" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS
-note
-note COMMAND [PATH_TO_NOTE]
+note init [-p PATH] [-r REMOTE]
+.RE
+note (help|checkhealth|sync|export)
+.RE
+note (ls|edit|show|render|rm) NOTE
+.RE
+note (ls|tree) PATH
+.RE
+note mv PATH NEWPATH
+.RE
+note find PATTERN
+.RE
+note grep PATTERN
+.RE
+note git GITSUBCOMMAND ...
 .SH DESCRIPTION
 CLI Notes manager
 
@@ -106,6 +119,20 @@ python-grip, glow
 4   Blank name
 
 5   Invalid arguments
+
+6   Locked
+
+
+.SH ENVIRONMENT
+.IP EDITOR
+The name of the editor
+.IP CAT
+Default
+.I glow -p
+Used for
+.BR note
+.BR show
+command
 
 .SH AUTHOR
 Kan (thek4n@yandex.ru)
