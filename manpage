@@ -1,27 +1,15 @@
 .\" Manpage for note.
-.TH man 1 "20 Feb 2022" "1.11.1" "note man page"
+.TH man 1 "30 Nov 2023" "1.11.1" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS
-note init [-p PATH] [-r REMOTE]
-.RE
-note (help|checkhealth|sync|export)
-.RE
-note (ls|edit|show|render|rm) NOTE
-.RE
-note (ls|tree) PATH
-.RE
-note mv PATH NEWPATH
-.RE
-note find PATTERN
-.RE
-note grep PATTERN
-.RE
-note git GITSUBCOMMAND ...
-.SH DESCRIPTION
-CLI Notes manager
 
-.SH COMMANDS
+.B note
+.I <SUBCOMMAND>
+[ARGUMENTS]...
+.SH DESCRIPTION
+CLI Notes manager.
+.SH SUBCOMMANDS
 .PP
 \fBinit [-p PATH] [-r REMOTE]\fR
 .RS 4
@@ -35,7 +23,7 @@ Creates or edit existing note with $EDITOR, after save changes
 .PP
 \fBsync\fR
 .RS 4
-Pull changes from remote note storage(in case of conflict, accepts yours changes)
+Pull changes from remote note storage. In case of conflict, accepts yours changes.
 .RE
 .PP
 \fBgit ...\fR
@@ -81,28 +69,41 @@ Show tree of notes in storage or subdirs
 \fBcomplete (command)\fR
 .RS 4
 Autocomplete helper
-
-.SS "Subcommands"
+.RS 4
+.B Subcommands
 .PP
-.RS 8
-\fBnotes\fR
+.RS 4
+\fBedit|show|render\fR
 .RS 4
 Print all stored notes without sub directories
 .RE
 .PP
-\fBsubdirs\fR
+\fBtree|mkdir\fR
 .RS 4
 Print only sub directories
 .RE
 .PP
-\fBfiles\fR
+\fBmv|rm|ls\fR
 .RS 4
 Print all stored notes with sub directories
 .RE
 .PP
-
+\fBbash\fR
+.RS 4
+Print subcommands in bash complete format
 .RE
 .PP
+\fBzsh\fR
+.RS 4
+Print subcommands in zsh complete format
+
+.SH EXAMPLES
+
+$ note init -r ssh://remote/notes-storage
+
+$ note edit someNote.md
+
+$ note render someNote.md
 
 .SH OPTIONAL DEPENDENCIES
 python-grip, glow
@@ -110,29 +111,26 @@ python-grip, glow
 .SH EXIT STATUS
 0   if OK
 
-1   Note not exists
+1   General error
 
-2   Note or directory already exists
+2   Invalid argument (etc. note not exists, ...)
 
-3   Invalid path
+3   Invalid option
 
-4   Blank name
-
-5   Invalid arguments
-
-6   Locked
-
+4   Invalid state (etc. not initialized, ...)
 
 .SH ENVIRONMENT
-.IP EDITOR
+.B EDITOR
 The name of the editor
-.IP CAT
+.PP
+.B CAT
 Default
 .I glow -p
 Used for
 .BR note
 .BR show
 command
+.PP
 
 .SH AUTHOR
 Kan (thek4n@yandex.ru)

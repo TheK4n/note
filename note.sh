@@ -24,7 +24,12 @@ readonly WARN_MESSAGE="${YELLOW}WARN${NOCOLOR}"
 readonly ERROR_MESSAGE="${RED}ERROR${NOCOLOR}"
 
 
-bye() {
+readonly INVALID_ARG_CODE=2
+readonly INVALID_OPT_CODE=3
+readonly INVALID_STATE_CODE=4
+
+
+die() {
     echo "$(basename "$0"): Error: $1" 1>&2
     exit $2
 }
@@ -78,7 +83,7 @@ cmd_version() {
 
 _validate_arg(){
 	if [[ $2 == -* ]]; then
-		bye "Option $1 requires an argument" 2
+		die "Option $1 requires an argument" $INVALID_ARG_CODE
 	fi
 }
 
@@ -99,10 +104,10 @@ cmd_init() {
                 remote_storage="$OPTARG"
             ;;
             :)
-                bye "Option -$OPTARG requires an argument" 2
+                die "Option -$OPTARG requires an argument" $INVALID_ARG_CODE
             ;;
             \?)
-                bye "Invalid option: -$OPTARG" 2
+                die "Invalid option: -$OPTARG" $INVALID_OPT_CODE
             ;;
         esac
 
@@ -131,12 +136,12 @@ __is_note_storage_initialized() {
 
 die_if_not_initialized() {
     if ! __is_note_storage_initialized; then
-        bye "You need to initialize: note init [-p PATH]" 2
+        die "You need to initialize: note init [-p PATH]" $INVALID_STATE_CODE
     fi
 }
 
 die_if_name_not_entered() {
-    test -n "$1" || bye "Note name wasn\`t entered" 4
+    test -n "$1" || die "Note name wasn\`t entered" $INVALID_ARG_CODE
 }
 
 cmd_git() {
@@ -153,11 +158,11 @@ git_commit() {
 
 die_if_invalid_path() {
     if [[ "$1" =~ ".." ]]; then
-        bye "Path can\`t contains '..'" 3
+        die "Path can\`t contains '..'" $INVALID_ARG_CODE
     fi
 
     if [[ "$1" = /* ]]; then
-        bye "Path can\`t start from '/'" 3
+        die "Path can\`t start from '/'" $INVALID_ARG_CODE
     fi
 }
 
@@ -166,7 +171,7 @@ _is_depends_installed() {
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || bye "'$1' not installed. Use 'note checkhealth'."
+    _is_depends_installed "$1" || die "'$1' not installed. Use 'note checkhealth'." $INVALID_STATE_CODE
 }
 
 cmd_edit() {
@@ -174,7 +179,7 @@ cmd_edit() {
     die_if_invalid_path "$1"
 
 
-    test -d "$PREFIX/$1" && bye "Can\`t edit directory '$1'" 2
+    test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
     local last_modified_time
     if [ -e "$PREFIX/$1" ]; then
@@ -225,7 +230,7 @@ cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "glow"
-    test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
+    test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     ${CAT:-glow -p} "$PREFIX/$1"
     exit 0
 }
@@ -254,7 +259,7 @@ cmd_tree() {
     die_if_invalid_path "$path"
     die_if_depends_not_installed "tree"
 
-    test -d "$PREFIX/$path" || bye "'$path' not a directory" 1
+    test -d "$PREFIX/$path" || die "'$path' not a directory" $INVALID_ARG_CODE
     cd "$PREFIX"
 
     tree -N -C --noreport "$path"
@@ -265,7 +270,7 @@ cmd_render() {
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "grip"
 
-    test -f "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
+    test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
     exit 0
@@ -274,7 +279,7 @@ cmd_render() {
 cmd_delete() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     rm -r "${PREFIX:?PREFIX is Null}/$1"
     git_add "$1"
     git_commit "Removed note $1"
@@ -284,8 +289,8 @@ cmd_rename() {
     die_if_invalid_path "$2"
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
-    test -e "$PREFIX/$1" || bye "Note '$1' doesn\`t exist" 1
-    test -f "$PREFIX/$2" && bye "Note '$2' already exists" 2
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -f "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
 
     _DIRNAME="$(dirname "$2")"
 
@@ -459,7 +464,7 @@ esac
 
 
 if [ -e "$LOCKFILE" ]; then
-    bye "Seems another process is running. If not, just delete $LOCKFILE" 6
+    die "Seems another process is running. If not, just delete $LOCKFILE" $INVALID_STATE_CODE
 fi
 touch "$LOCKFILE"
 
