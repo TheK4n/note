@@ -79,7 +79,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "Note 1.12.0"
+    echo "%%VERSION%%"
     exit 0
 }
 

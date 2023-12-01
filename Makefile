@@ -5,12 +5,14 @@ BINARY = note
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 ZSHCOMPDIR ?= $(PREFIX)/share/zsh/site-functions
 MANDIR ?= $(PREFIX)/share/man
+VERSION = $(shell grep pkgver PKGBUILD | sed 's/pkgver=//')
 
 .PHONY: all install uninstall
 
 all: install
 
 install:
+	sed -i 's/%%VERSION%%/$(VERSION)/' manpage note.sh
 	install -Dm755 $(SCRIPTNAME) $(DESTDIR)$(PREFIX)/bin/$(BINARY)
 	install -vd "$(DESTDIR)$(MANDIR)/man1" && install -m 0644 manpage "$(DESTDIR)$(MANDIR)/man1/note.1"
 	@if which zsh &>/dev/null; then \
