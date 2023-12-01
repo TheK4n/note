@@ -312,7 +312,7 @@ cmd_rename() {
 
 cmd_find() {
     die_if_depends_not_installed "find"
-    find "$PREFIX" \( -name .git -o -name .img \) -prune -o -iname "$1" -print | _exclude_prefix
+    find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o -iname "$1" -print | _exclude_prefix
     exit 0
 }
 
@@ -338,6 +338,7 @@ _format_and_sort_completions() {
 }
 
 _find_notes_to_complete() {
+    die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o $1 -print | _format_and_sort_completions
 }
 
