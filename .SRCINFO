@@ -14,7 +14,7 @@ pkgbase = note
 	optdepends = findutils: find notes
 	optdepends = fzf: find notes
 	conflicts = note
-	source = note::git+https://github.com/thek4n/note.git#branch=master
+	source = note::git+https://github.com/thek4n/note.git#branch=release
 	sha256sums = SKIP
 
 pkgname = note

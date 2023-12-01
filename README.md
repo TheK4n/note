@@ -39,18 +39,19 @@ Optional dependencies:
 * grip - For render note in browser
 * glow - For render note in terminal
 * tree - Show tree of notes
+* fzf - Beauty note search
 
 
 ### Install from source:
 ```bash
-git clone https://github.com/thek4n/note.git
+git clone https://github.com/thek4n/note.git -b release
 cd note
 make install
 ```
 
 ### Install by pacman (Recommended):
 ```bash
-git clone https://github.com/thek4n/note.git
+git clone https://github.com/thek4n/note.git -b release
 cd note
 makepkg -sic && git clean -df
 ```
