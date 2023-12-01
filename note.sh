@@ -36,7 +36,7 @@ die() {
 
 
 cmd_usage() {
-    echo "Usage:
+    echo 'Usage:
     note help
         Show this text
     note init [-p PATH] [-r REMOTE]
@@ -45,6 +45,8 @@ cmd_usage() {
         Print version and exit
     note edit (PATH_TO_NOTE)
         Creates or edit existing note with $EDITOR, after save changes by git
+    note fedit
+        Find note by fzf and edit with $EDITOR
     note show (PATH_TO_NOTE)
         Render note in terminal by glow
     note render (PATH_TO_NOTE)
@@ -72,12 +74,12 @@ cmd_usage() {
     note --prefix
         Prints to stdout current notes storage
     note export
-        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
+        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
     exit 0
 }
 
 cmd_version() {
-    echo "Note 1.11.1"
+    echo "Note 1.12.0"
     exit 0
 }
 
@@ -220,6 +222,10 @@ cmd_edit() {
     fi
 }
 
+cmd_fedit() {
+    cmd_edit "$(cmd_complete_notes | fzf +m)"
+}
+
 cmd_list() {
     die_if_invalid_path "$*"
     cd "$PREFIX"
@@ -332,7 +338,7 @@ _format_and_sort_completions() {
 }
 
 _find_notes_to_complete() {
-    find "$PREFIX" \( -name .git -o -name .img \) -prune -o $1 -print | _format_and_sort_completions
+    find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o $1 -print | _format_and_sort_completions
 }
 
 __error_if_storage_not_initialized() {
@@ -367,6 +373,7 @@ cmd_checkhealth() {
 
     echo -e "Is optional dependencies installed?..."
     echo -e "\tglow $(__warn_if_depends_not_installed glow)"
+    echo -e "\tfzf $(__warn_if_depends_not_installed fzf)"
     echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
@@ -386,8 +393,9 @@ cmd_complete_files() {
 }
 
 complete_commands() {
-    echo "init:Initialize new note storage in ~/.notes
+    echo 'init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with $EDITOR
+fedit:Find note by fzf and edit with $EDITOR
 show:Render note in terminal by glow
 render:Render note in browser by grip in localhost:6751
 rm:Remove note
@@ -401,7 +409,7 @@ mkdir:Creates directory
 sync:Pull changes from remote note storage(in case of conflict, accepts yours changes)
 git:Proxy commands to git
 --prefix:Prints to stdout current notes storage
-checkhealth:Check installed dependencies and initialized storage"
+checkhealth:Check installed dependencies and initialized storage'
 }
 
 
@@ -474,6 +482,7 @@ trap _release_lock EXIT
 
 case "$1" in
     edit) shift;      cmd_edit     "$@" ;;
+    fedit) shift;     cmd_fedit    "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
     mv) shift;        cmd_rename   "$@" ;;
     mkdir) shift;     cmd_mkdir    "$@" ;;

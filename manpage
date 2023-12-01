@@ -1,5 +1,5 @@
 .\" Manpage for note.
-.TH man 1 "30 Nov 2023" "1.11.1" "note man page"
+.TH man 1 "30 Nov 2023" "1.12.0" "note man page"
 .SH NAME
 note \- Simple notes manager
 .SH SYNOPSIS
@@ -19,6 +19,11 @@ Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pull
 \fBedit (PATH_TO_NOTE)\fR
 .RS 4
 Creates or edit existing note with $EDITOR, after save changes
+.RE
+.PP
+\fBfedit\fR
+.RS 4
+Find note by fzf and edit with $EDITOR
 .RE
 .PP
 \fBsync\fR

@@ -1,7 +1,7 @@
 # Maintainer: thek4n
 
 pkgname='note'
-pkgver=1.11.1
+pkgver=1.12.0
 pkgrel=1
 pkgdesc="Simple CLI notes manager"
 arch=('any')
@@ -15,6 +15,7 @@ optdepends=(
   'glow: render tips in terminal'
   'tree: tree of notes'
   'findutils: find notes'
+  'fzf: find notes'
 )
 makedepends=('git')
 url='https://github.com/thek4n/note'
