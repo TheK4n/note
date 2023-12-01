@@ -5,14 +5,10 @@ pkgbase = note
 	url = https://github.com/thek4n/note
 	arch = any
 	license = MIT
-	makedepends = git
-	makedepends = make
 	depends = git
-	optdepends = python3: for python-grip
 	optdepends = python-grip: render tips in browser
 	optdepends = glow: render tips in terminal
 	optdepends = tree: tree of notes
-	optdepends = findutils: find notes
 	optdepends = fzf: find notes
 	conflicts = note
 	source = note::git+https://github.com/thek4n/note.git#branch=release

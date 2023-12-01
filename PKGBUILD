@@ -5,23 +5,17 @@ pkgver=1.12.1
 pkgrel=1
 pkgdesc="Simple CLI notes manager"
 arch=('any')
+url='https://github.com/thek4n/note'
 license=('MIT')
 depends=(
   'git'
 )
 optdepends=(
-  'python3: for python-grip'
   'python-grip: render tips in browser'
   'glow: render tips in terminal'
   'tree: tree of notes'
-  'findutils: find notes'
   'fzf: find notes'
 )
-makedepends=(
-'git'
-'make'
-)
-url='https://github.com/thek4n/note'
 conflicts=('note')
 source=("$pkgname::git+https://github.com/thek4n/note.git#branch=release")
 sha256sums=('SKIP')
