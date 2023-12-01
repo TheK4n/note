@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright © 2022-2023 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
 
 
 set -ueo pipefail
