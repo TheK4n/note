@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
+
+source tests/base.sh
+
 set -m
-
-export EDITOR=tee
-export CAT=cat
-
-script="./note.sh"
 
 echo ">>> $0 >>> Test edit command locks other edit command"
 "$script" edit somenote.md &

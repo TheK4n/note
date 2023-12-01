@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
-set -e
 
-export EDITOR=tee
-export CAT=cat
+source tests/base.sh
 
-script="./note.sh"
 subdir="someDir"
 storage="$($script --prefix)"
 

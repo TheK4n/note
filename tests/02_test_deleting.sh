@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-set -e
+source tests/base.sh
 
-export EDITOR=tee
-export CAT=cat
-
-script="./note.sh"
 filename="test2.md"
 
 
