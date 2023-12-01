@@ -6,6 +6,7 @@ pkgbase = note
 	arch = any
 	license = MIT
 	makedepends = git
+	makedepends = make
 	depends = git
 	optdepends = python3: for python-grip
 	optdepends = python-grip: render tips in browser

@@ -17,7 +17,10 @@ optdepends=(
   'findutils: find notes'
   'fzf: find notes'
 )
-makedepends=('git')
+makedepends=(
+'git'
+'make'
+)
 url='https://github.com/thek4n/note'
 conflicts=('note')
 source=("$pkgname::git+https://github.com/thek4n/note.git#branch=release")

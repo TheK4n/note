@@ -15,6 +15,7 @@ install:
 	sed -i 's/%%VERSION%%/$(VERSION)/' manpage note.sh
 	install -vDm755 $(SCRIPTNAME) $(DESTDIR)$(PREFIX)/bin/$(BINARY)
 	install -vDm 0644 manpage "$(DESTDIR)$(MANDIR)/man1/note.1"
+	install -vDm 0644 LICENSE "$(DESTDIR)$(PREFIX)/share/licenses/note/LICENSE"
 	@if command -v zsh &>/dev/null; then \
         install -vDm 0644 note.zsh-completion "$(DESTDIR)$(ZSHCOMPDIR)/_note"; \
     fi
