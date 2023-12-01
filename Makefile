@@ -13,13 +13,13 @@ all: install
 
 install:
 	sed -i 's/%%VERSION%%/$(VERSION)/' manpage note.sh
-	install -Dm755 $(SCRIPTNAME) $(DESTDIR)$(PREFIX)/bin/$(BINARY)
-	install -vd "$(DESTDIR)$(MANDIR)/man1" && install -m 0644 manpage "$(DESTDIR)$(MANDIR)/man1/note.1"
-	@if which zsh &>/dev/null; then \
-        install -vd "$(DESTDIR)$(ZSHCOMPDIR)" && install -m 0644 note.zsh-completion "$(DESTDIR)$(ZSHCOMPDIR)/_note"; \
+	install -vDm755 $(SCRIPTNAME) $(DESTDIR)$(PREFIX)/bin/$(BINARY)
+	install -vDm 0644 manpage "$(DESTDIR)$(MANDIR)/man1/note.1"
+	@if command -v zsh &>/dev/null; then \
+        install -vDm 0644 note.zsh-completion "$(DESTDIR)$(ZSHCOMPDIR)/_note"; \
     fi
-	@if which bash &>/dev/null; then \
-		install -vd "$(DESTDIR)$(BASHCOMPDIR)" && install -m 0644 note.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/note"; \
+	@if command -v bash &>/dev/null; then \
+		install -vDm 0644 note.bash-completion "$(DESTDIR)$(BASHCOMPDIR)/note"; \
     fi
 
 test:
