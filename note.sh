@@ -174,13 +174,34 @@ _is_depends_installed() {
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || die "'$1' not installed. Use 'note checkhealth'." $INVALID_STATE_CODE
+    _is_depends_installed "$1" || die "'$1' not installed. Use '$0 checkhealth'." $INVALID_STATE_CODE
+}
+
+_is_variable_set() {
+    [[ -v "$1" ]]
+}
+
+die_if_variable_name_not_set() {
+    if ! _is_variable_set "$1"; then
+        die "Variable '$1' not defined" $INVALID_STATE_CODE
+    fi
+}
+
+_is_EDITOR_valid() {
+    command -v "$EDITOR" >/dev/null
+}
+
+die_if_EDITOR_invalid() {
+    if ! _is_EDITOR_valid; then
+        die "EDITOR ($EDITOR) is invalid" $INVALID_STATE_CODE
+    fi
 }
 
 cmd_edit() {
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
-
+    die_if_variable_name_not_set "EDITOR"
+    die_if_EDITOR_invalid
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
@@ -351,6 +372,14 @@ __error_if_storage_not_initialized() {
     fi
 }
 
+__error_if_invalid_EDITOR_variable() {
+    if _is_variable_set "EDITOR" && _is_EDITOR_valid; then
+        echo -e "$OK_MESSAGE"
+    else
+        echo -e "$ERROR_MESSAGE"
+    fi
+}
+
 __error_if_depends_not_installed() {
     if _is_depends_installed "$1"; then
         echo -e "$OK_MESSAGE"
@@ -369,6 +398,8 @@ __warn_if_depends_not_installed() {
 
 cmd_checkhealth() {
     echo -e "Is note storage initialized?... $(__error_if_storage_not_initialized)"
+
+    echo -e "Is variable EDITOR valid?... $(__error_if_invalid_EDITOR_variable)"
 
     echo -e "Is dependencies installed?..."
     echo -e "\tgit $(__error_if_depends_not_installed git)"
