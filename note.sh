@@ -5,11 +5,11 @@
 set -ueo pipefail
 shopt -s nullglob
 
-readonly CONFIGFILE="$HOME/.notes-storage-path"
+readonly CONFIGFILE="${XDG_DATA_HOME:-$HOME/.local/share}/note/notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
 declare LOCKFILE
-LOCKFILE="$(dirname "$(mktemp -u)")/note.lock"
+LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
 readonly LOCKFILE
 
 readonly ORIGIN="origin"
@@ -116,6 +116,7 @@ cmd_init() {
 
     done
 
+    mkdir -p "$(dirname "$CONFIGFILE")"
     echo "$PREFIX" > "$CONFIGFILE"
 
     if [ ! -d "$PREFIX" ]; then
@@ -475,6 +476,17 @@ cmd_complete() {
     exit 0
 }
 
+_die_if_locked() {
+    if [ -e "$LOCKFILE" ]; then
+        die "Seems another process is running. If not, just delete $LOCKFILE" $INVALID_STATE_CODE
+    fi
+}
+
+_set_lock() {
+    mkdir -p "$(dirname "$LOCKFILE")"
+    touch "$LOCKFILE"
+}
+
 _release_lock() {
     rm "$LOCKFILE"
 }
@@ -504,11 +516,8 @@ case "$1" in
 esac
 
 
-if [ -e "$LOCKFILE" ]; then
-    die "Seems another process is running. If not, just delete $LOCKFILE" $INVALID_STATE_CODE
-fi
-touch "$LOCKFILE"
-
+_die_if_locked
+_set_lock
 trap _release_lock ERR
 trap _release_lock EXIT
 
