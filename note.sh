@@ -5,7 +5,8 @@
 set -ueo pipefail
 shopt -s nullglob
 
-readonly CONFIGFILE="${XDG_DATA_HOME:-$HOME/.local/share}/note/notes-storage-path"
+: "${XDG_DATA_HOME:=$HOME/.local/share}"
+readonly CONFIGFILE="$XDG_DATA_HOME/note/notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
 declare LOCKFILE
