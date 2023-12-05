@@ -37,7 +37,7 @@ Dependencies:
 
 Optional dependencies:
 * grip - For render note in browser
-* glow - For render note in terminal
+* bat - For render note in terminal
 * tree - Show tree of notes
 * fzf - Beauty note search
 

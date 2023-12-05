@@ -43,7 +43,7 @@ List notes
 .PP
 \fBshow (PATH_TO_NOTE)\fR
 .RS 4
-Render note in terminal by glow
+Render note in terminal by bat
 .RE
 .PP
 \fBrender (PATH_TO_NOTE)\fR
@@ -111,7 +111,7 @@ $ note edit someNote.md
 $ note render someNote.md
 
 .SH OPTIONAL DEPENDENCIES
-python-grip, glow
+python-grip, bat
 
 .SH EXIT STATUS
 0   if OK
@@ -130,7 +130,7 @@ The name of the editor
 .PP
 .B CAT
 Default
-.I glow -p
+.I bat
 Used for
 .BR note
 .BR show

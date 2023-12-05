@@ -12,7 +12,7 @@ depends=(
 )
 optdepends=(
   'python-grip: render tips in browser'
-  'glow: render tips in terminal'
+  'bat: render tips in terminal'
   'tree: tree of notes'
   'fzf: find notes'
 )

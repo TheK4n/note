@@ -16,6 +16,8 @@ readonly LOCKFILE
 readonly ORIGIN="origin"
 readonly BRANCH="master"
 
+readonly DEFAULT_PAGER="bat"
+
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
 readonly YELLOW='\033[1;33m'
@@ -38,7 +40,7 @@ die() {
 
 
 cmd_usage() {
-    echo 'Usage:
+    echo "Usage:
     note help
         Show this text
     note init [-p PATH] [-r REMOTE]
@@ -46,11 +48,11 @@ cmd_usage() {
     note version
         Print version and exit
     note edit (PATH_TO_NOTE)
-        Creates or edit existing note with $EDITOR, after save changes by git
+        Creates or edit existing note with \$EDITOR, after save changes by git
     note fedit
-        Find note by fzf and edit with $EDITOR
+        Find note by fzf and edit with \$EDITOR
     note show (PATH_TO_NOTE)
-        Render note in terminal by glow
+        Render note in terminal by $DEFAULT_PAGER
     note render (PATH_TO_NOTE)
         Render note in browser by grip in localhost:6751
     note rm (PATH_TO_NOTE)
@@ -76,7 +78,7 @@ cmd_usage() {
     note --prefix
         Prints to stdout current notes storage
     note export
-        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)' >&2
+        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
     exit 0
 }
 
@@ -247,7 +249,13 @@ cmd_edit() {
 }
 
 cmd_fedit() {
-    cmd_edit "$(cmd_complete_notes | fzf +m)"
+    export FZF_DEFAULT_OPTS="\
+        --no-multi \
+        --preview-window right:60% \
+        --bind ctrl-/:toggle-preview \
+        --preview=\"${CAT:-$DEFAULT_PAGER} --plain --wrap=never --color=always $PREFIX/{}\""
+
+    cmd_edit "$(cmd_complete_notes | fzf --query "${1:-}")"
 }
 
 cmd_list() {
@@ -259,9 +267,9 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    die_if_depends_not_installed "glow"
+    die_if_depends_not_installed "$DEFAULT_PAGER"
     test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    ${CAT:-glow -p} "$PREFIX/$1"
+    ${CAT:-$DEFAULT_PAGER} "$PREFIX/$1"
     exit 0
 }
 
@@ -407,7 +415,7 @@ cmd_checkhealth() {
     echo -e "\tgit $(__error_if_depends_not_installed git)"
 
     echo -e "Is optional dependencies installed?..."
-    echo -e "\tglow $(__warn_if_depends_not_installed glow)"
+    echo -e "\t$DEFAULT_PAGER $(__warn_if_depends_not_installed $DEFAULT_PAGER)"
     echo -e "\tfzf $(__warn_if_depends_not_installed fzf)"
     echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
@@ -428,10 +436,10 @@ cmd_complete_files() {
 }
 
 complete_commands() {
-    echo 'init:Initialize new note storage in ~/.notes
-edit:Creates or edit existing note with $EDITOR
-fedit:Find note by fzf and edit with $EDITOR
-show:Render note in terminal by glow
+    echo "init:Initialize new note storage in ~/.notes
+edit:Creates or edit existing note with \$EDITOR
+fedit:Find note by fzf and edit with \$EDITOR
+show:Render note in terminal by $DEFAULT_PAGER
 render:Render note in browser by grip in localhost:6751
 rm:Remove note
 mv:Rename note
@@ -444,7 +452,7 @@ mkdir:Creates directory
 sync:Pull changes from remote note storage(in case of conflict, accepts yours changes)
 git:Proxy commands to git
 --prefix:Prints to stdout current notes storage
-checkhealth:Check installed dependencies and initialized storage'
+checkhealth:Check installed dependencies and initialized storage"
 }
 
 
