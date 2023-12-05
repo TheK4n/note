@@ -5,7 +5,7 @@
 _note() {
     _arguments -A 'init' -S \
         '-p[Storage path]:storage:_directories' \
-        '-r[Remote storage]:remote:_hosts'
+        '-r[Remote storage]:remote:__git_repositories_or_urls'
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
