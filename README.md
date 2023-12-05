@@ -44,14 +44,14 @@ Optional dependencies:
 
 ### Install from source:
 ```bash
-git clone https://github.com/thek4n/note.git -b release
+git clone https://github.com/thek4n/note.git
 cd note
 make install
 ```
 
 ### Install by pacman (Recommended):
 ```bash
-git clone https://github.com/thek4n/note.git -b release
+git clone https://github.com/thek4n/note.git
 cd note
 makepkg -sic && git clean -df
 ```

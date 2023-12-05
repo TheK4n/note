@@ -1,6 +1,6 @@
 pkgbase = note
 	pkgdesc = Simple CLI notes manager
-	pkgver = 1.13.0
+	pkgver = 1.13.1
 	pkgrel = 1
 	url = https://github.com/thek4n/note
 	arch = any
@@ -11,7 +11,7 @@ pkgbase = note
 	optdepends = tree: tree of notes
 	optdepends = fzf: find notes
 	conflicts = note
-	source = note::git+https://github.com/thek4n/note.git#branch=release
+	source = note::git+https://github.com/thek4n/note.git#branch=master
 	sha256sums = SKIP
 
 pkgname = note

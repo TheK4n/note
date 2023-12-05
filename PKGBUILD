@@ -1,7 +1,7 @@
 # Maintainer: thek4n
 
 pkgname='note'
-pkgver=1.13.0
+pkgver=1.13.1
 pkgrel=1
 pkgdesc="Simple CLI notes manager"
 arch=('any')
@@ -17,7 +17,7 @@ optdepends=(
   'fzf: find notes'
 )
 conflicts=('note')
-source=("$pkgname::git+https://github.com/thek4n/note.git#branch=release")
+source=("$pkgname::git+https://github.com/thek4n/note.git#branch=master")
 sha256sums=('SKIP')
 
 package() {
