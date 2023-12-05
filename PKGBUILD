@@ -1,8 +1,8 @@
 # Maintainer: thek4n
 
 pkgname='note'
-pkgver=1.12.3
-pkgrel=2
+pkgver=1.13.0
+pkgrel=1
 pkgdesc="Simple CLI notes manager"
 arch=('any')
 url='https://github.com/thek4n/note'
