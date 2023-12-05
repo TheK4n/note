@@ -85,7 +85,7 @@ cmd_version() {
     exit 0
 }
 
-_validate_arg(){
+_validate_arg() {
 	if [[ $2 == -* ]]; then
 		die "Option $1 requires an argument" $INVALID_ARG_CODE
 	fi

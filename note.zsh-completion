@@ -3,6 +3,10 @@
 
 
 _note() {
+    _arguments -A 'init' -S \
+        '-p[Storage path]:storage:_directories' \
+        '-r[Remote storage]:remote:_hosts'
+
     if (( CURRENT > 2)); then
         cmd=${words[2]}
         prefix="$(note --prefix)"
