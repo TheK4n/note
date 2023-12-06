@@ -7,9 +7,9 @@ pkgbase = note
 	license = MIT
 	depends = git
 	optdepends = python-grip: render tips in browser
+	optdepends = fzf: find notes
 	optdepends = bat: render tips in terminal
 	optdepends = tree: tree of notes
-	optdepends = fzf: find notes
 	conflicts = note
 	source = note::git+https://github.com/thek4n/note.git#branch=master
 	sha256sums = SKIP

@@ -12,9 +12,9 @@ depends=(
 )
 optdepends=(
   'python-grip: render tips in browser'
+  'fzf: find notes'
   'bat: render tips in terminal'
   'tree: tree of notes'
-  'fzf: find notes'
 )
 conflicts=('note')
 source=("$pkgname::git+https://github.com/thek4n/note.git#branch=master")

@@ -9,14 +9,13 @@ shopt -s nullglob
 readonly CONFIGFILE="$XDG_DATA_HOME/note/notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
-declare LOCKFILE
-LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
-readonly LOCKFILE
+readonly LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
 
-readonly DEFAULT_PAGER="bat"
+readonly FZF="fzf"
+readonly FZF_PAGER="bat"
 
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -52,7 +51,7 @@ cmd_usage() {
     note fedit
         Find note by fzf and edit with \$EDITOR
     note show (PATH_TO_NOTE)
-        Render note in terminal by $DEFAULT_PAGER
+        Show note in terminal by \$PAGER
     note render (PATH_TO_NOTE)
         Render note in browser by grip in localhost:6751
     note rm (PATH_TO_NOTE)
@@ -249,13 +248,15 @@ cmd_edit() {
 }
 
 cmd_fedit() {
+    die_if_depends_not_installed "$FZF"
+    die_if_depends_not_installed "$FZF_PAGER"
     export FZF_DEFAULT_OPTS="\
         --no-multi \
         --preview-window right:60% \
         --bind ctrl-/:toggle-preview \
-        --preview=\"${CAT:-$DEFAULT_PAGER} --plain --wrap=never --color=always $PREFIX/{}\""
+        --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
 
-    cmd_edit "$(cmd_complete_notes | fzf --query "${1:-}")"
+    cmd_edit "$(cmd_complete_notes | $FZF --query "${1:-}")"
 }
 
 cmd_list() {
@@ -267,9 +268,8 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    die_if_depends_not_installed "$DEFAULT_PAGER"
     test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    ${CAT:-$DEFAULT_PAGER} "$PREFIX/$1"
+    $PAGER "$PREFIX/$1"
     exit 0
 }
 
@@ -415,8 +415,8 @@ cmd_checkhealth() {
     echo -e "\tgit $(__error_if_depends_not_installed git)"
 
     echo -e "Is optional dependencies installed?..."
-    echo -e "\t$DEFAULT_PAGER $(__warn_if_depends_not_installed $DEFAULT_PAGER)"
-    echo -e "\tfzf $(__warn_if_depends_not_installed fzf)"
+    echo -e "\t$FZF $(__warn_if_depends_not_installed $FZF)"
+    echo -e "\t$FZF_PAGER $(__warn_if_depends_not_installed $FZF_PAGER)"
     echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
@@ -439,7 +439,7 @@ complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
 fedit:Find note by fzf and edit with \$EDITOR
-show:Render note in terminal by $DEFAULT_PAGER
+show:Render note in terminal by \$PAGER
 render:Render note in browser by grip in localhost:6751
 rm:Remove note
 mv:Rename note

@@ -128,9 +128,7 @@ python-grip, bat
 .B EDITOR
 The name of the editor
 .PP
-.B CAT
-Default
-.I bat
+.B PAGER
 Used for
 .BR note
 .BR show
