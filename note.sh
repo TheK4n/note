@@ -500,12 +500,15 @@ _release_lock() {
     rm "$LOCKFILE"
 }
 
+if [[ ! -v 1 ]]; then
+    die "Type 'note help' for usage" 1
+fi
 
 case "$1" in
-    init) shift;         cmd_init         "$@" ;;
-    help|--help) shift;  cmd_usage        "$@" ;;
-    version|-V) shift;   cmd_version      "$@" ;;
-    checkhealth) shift;  cmd_checkhealth  "$@" ;;
+    init) shift;            cmd_init         "$@" ;;
+    help|--help|-h) shift;  cmd_usage        "$@" ;;
+    version|-V) shift;      cmd_version      "$@" ;;
+    checkhealth) shift;     cmd_checkhealth  "$@" ;;
 esac
 
 
@@ -514,13 +517,13 @@ PREFIX="$(cat "$CONFIGFILE")"
 
 
 case "$1" in
-    show) shift;      cmd_show     "$@" ;;
-    render) shift;    cmd_render   "$@" ;;
-    ls) shift;        cmd_ls       "$@" ;;
-    tree) shift;      cmd_tree     "$@" ;;
-    find) shift;      cmd_find     "$@" ;;
-    grep) shift;      cmd_grep     "$@" ;;
-    complete) shift;  cmd_complete "$@" ;;
+    show) shift;      cmd_show         "$@" ;;
+    render) shift;    cmd_render       "$@" ;;
+    ls) shift;        cmd_ls           "$@" ;;
+    tree) shift;      cmd_tree         "$@" ;;
+    find) shift;      cmd_find         "$@" ;;
+    grep) shift;      cmd_grep         "$@" ;;
+    complete) shift;  cmd_complete     "$@" ;;
     --prefix) shift;  cmd_get_storage  "$@" ;;
 esac
 
@@ -532,15 +535,15 @@ trap _release_lock EXIT
 
 
 case "$1" in
-    edit) shift;      cmd_edit     "$@" ;;
-    fedit) shift;     cmd_fedit    "$@" ;;
-    rm) shift;        cmd_delete   "$@" ;;
-    mv) shift;        cmd_rename   "$@" ;;
-    mkdir) shift;     cmd_mkdir    "$@" ;;
-    export) shift;    cmd_export   "$@" ;;
-    sync) shift;      cmd_sync     "$@" ;;
-    git) shift;       cmd_git      "$@" ;;
+    edit) shift;      cmd_edit    "$@" ;;
+    fedit) shift;     cmd_fedit   "$@" ;;
+    rm) shift;        cmd_delete  "$@" ;;
+    mv) shift;        cmd_rename  "$@" ;;
+    mkdir) shift;     cmd_mkdir   "$@" ;;
+    export) shift;    cmd_export  "$@" ;;
+    sync) shift;      cmd_sync    "$@" ;;
+    git) shift;       cmd_git     "$@" ;;
 
-    *)                cmd_usage    "$@" ;;
+    *)                cmd_usage   "$@" ;;
 esac
 exit 0
