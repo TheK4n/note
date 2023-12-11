@@ -150,15 +150,15 @@ die_if_name_not_entered() {
 }
 
 cmd_git() {
-    git -C "$PREFIX" $*
+    git -C "$PREFIX" "$@"
 }
 
 git_add() {
-    git -C "$PREFIX" add "$1"
+    cmd_git add "$1"
 }
 
 git_commit() {
-    git -C "$PREFIX" commit -m "$1" 1>/dev/null
+    cmd_git commit -m "$1" 1>/dev/null
 }
 
 die_if_invalid_path() {
@@ -261,7 +261,7 @@ cmd_fedit() {
 cmd_list() {
     die_if_invalid_path "$*"
     cd "$PREFIX"
-    ls --color=always $*
+    ls --color=always "$@"
 }
 
 cmd_show() {
@@ -277,7 +277,7 @@ cmd_ls() {
     if [ -z "$*" ]; then
         cmd_list
     else
-        cmd_list $*
+        cmd_list "$@"
     fi
     exit 0
 }
