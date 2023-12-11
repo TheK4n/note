@@ -115,7 +115,6 @@ cmd_init() {
                 die "Invalid option: -$OPTARG" $INVALID_OPT_CODE
             ;;
         esac
-
     done
 
     mkdir -p "$(dirname "$CONFIGFILE")"
@@ -126,7 +125,7 @@ cmd_init() {
     fi
     git init -b "$BRANCH" "$PREFIX"
     if [ -n "$remote_storage" ]; then
-        git -C "$PREFIX" remote add origin "$remote_storage"
+        git -C "$PREFIX" remote add "$ORIGIN" "$remote_storage"
         cmd_sync
     fi
     exit 0
@@ -173,7 +172,7 @@ die_if_invalid_path() {
 }
 
 _is_depends_installed() {
-    which "$1" &>/dev/null
+    command -v "$1" &>/dev/null
 }
 
 die_if_depends_not_installed() {
