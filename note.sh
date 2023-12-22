@@ -357,7 +357,15 @@ cmd_export() {
 }
 
 cmd_sync() {
-    cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit
+    local ff="Fast-forward"
+    local merge="Merge"
+
+    local red=$'\e[31m'
+    local green=$'\e[32m'
+    local nocolor=$'\e[0m'
+
+    output="$(cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit)"
+    echo -e "$output" | sed -e "s/${ff}/${green}${ff}${nocolor}/g" | sed -e "s/${merge}/${red}${merge}${nocolor}/g"
 }
 
 _exclude_prefix() {
@@ -500,7 +508,7 @@ _release_lock() {
 }
 
 if [[ ! -v 1 ]]; then
-    die "Type 'note help' for usage" 1
+    die "Type '$0 help' for usage" 1
 fi
 
 case "$1" in
