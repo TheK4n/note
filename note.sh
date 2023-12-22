@@ -15,6 +15,10 @@ readonly LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
 readonly ORIGIN="origin"
 readonly BRANCH="master"
 
+declare PROGRAM
+PROGRAM="$(basename "$0")"
+readonly PROGRAM
+
 readonly FZF="fzf"
 readonly FZF_PAGER="bat"
 
@@ -34,51 +38,51 @@ readonly INVALID_STATE_CODE=4
 
 
 die() {
-    echo "$(basename "$0"): Error: $1" 1>&2
+    echo "$PROGRAM: Error: $1" 1>&2
     exit $2
 }
 
 
 cmd_usage() {
     echo "Usage:
-    note help
+    $PROGRAM help
         Show this text
-    note init [-p PATH] [-r REMOTE]
+    $PROGRAM init [-p PATH] [-r REMOTE]
         Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
-    note version
+    $PROGRAM version
         Print version and exit
-    note edit (PATH_TO_NOTE)
+    $PROGRAM edit (PATH_TO_NOTE)
         Creates or edit existing note with \$EDITOR, after save changes by git
-    note fedit
+    $PROGRAM fedit
         Find note by fzf and edit with \$EDITOR
-    note show (PATH_TO_NOTE)
+    $PROGRAM show (PATH_TO_NOTE)
         Show note in terminal by \$PAGER
-    note render (PATH_TO_NOTE)
+    $PROGRAM render (PATH_TO_NOTE)
         Render note in browser by grip in localhost:6751
-    note rm (PATH_TO_NOTE)
+    $PROGRAM rm (PATH_TO_NOTE)
         Removes note
-    note mv (PATH_TO_NOTE) (new-note-name)
+    $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
         Rename note
-    note ls [PATH_TO_NOTE]...
+    $PROGRAM ls [PATH_TO_NOTE]...
         List notes
-    note mkdir (PATH_TO_DIR)
+    $PROGRAM mkdir (PATH_TO_DIR)
         Creates new directory and subdirs
-    note tree [PATH_TO_SUBDIR]
+    $PROGRAM tree [PATH_TO_SUBDIR]
         Show notes in storage or subdir
-    note find (NOTE_NAME)
+    $PROGRAM find (NOTE_NAME)
         Find note with name
-    note grep (PATTERN)
+    $PROGRAM grep (PATTERN)
         Find notes by pattern
-    note checkhealth
+    $PROGRAM checkhealth
         Check installed dependencies and initialized storage
-    note sync
+    $PROGRAM sync
         Pull changes from remote note storage(in case of conflict, accepts yours changes)
-    note git ...
+    $PROGRAM git ...
         Proxy commands to git
-    note --prefix
+    $PROGRAM --prefix
         Prints to stdout current notes storage
-    note export
-        Export notes in tar.gz format, redirect output in stdout (use note export > notes.tar.gz)" >&2
+    $PROGRAM export
+        Export notes in tar.gz format, redirect output in stdout (use $PROGRAM export > notes.tar.gz)" >&2
     exit 0
 }
 
@@ -159,7 +163,7 @@ __is_note_storage_initialized() {
 
 die_if_not_initialized() {
     if ! __is_note_storage_initialized; then
-        die "You need to initialize: note init [-p PATH]" $INVALID_STATE_CODE
+        die "You need to initialize: $PROGRAM init [-p PATH]" $INVALID_STATE_CODE
     fi
 }
 
@@ -194,7 +198,7 @@ _is_depends_installed() {
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || die "'$1' not installed. Use '$0 checkhealth'." $INVALID_STATE_CODE
+    _is_depends_installed "$1" || die "'$1' not installed. Use '$PROGRAM checkhealth'." $INVALID_STATE_CODE
 }
 
 _is_variable_set() {
@@ -532,7 +536,7 @@ _release_lock() {
 }
 
 if [[ ! -v 1 ]]; then
-    die "Type '$0 help' for usage" 1
+    die "Type '$PROGRAM help' for usage" 1
 fi
 
 case "$1" in
