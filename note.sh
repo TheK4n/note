@@ -86,6 +86,23 @@ cmd_version() {
     exit 0
 }
 
+_ask_user() {
+    local answer
+    local question="$1"
+    local default_value="$2"
+    read -rp "$question (default=$default_value): " answer
+
+    if [ -z "$answer" ]; then
+        answer="$default_value"
+    fi
+
+    echo "$answer"
+}
+
+_is_yes() {
+    [[ "$1" == [Yy]* ]]
+}
+
 _validate_arg() {
 	if [[ $2 == -* ]]; then
 		die "Option $1 requires an argument" $INVALID_ARG_CODE
@@ -366,6 +383,12 @@ cmd_sync() {
 
     output="$(cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit)"
     echo -e "$output" | sed -e "s/${ff}/${green}${ff}${nocolor}/g" | sed -e "s/${merge}/${red}${merge}${nocolor}/g"
+
+    if echo "$output" | grep "$merge"; then
+        if _is_yes "$(_ask_user "[?] Merge detected! Push merge-commit? [N/y]" "y")"; then
+            cmd_git push
+        fi
+    fi
 }
 
 _exclude_prefix() {
