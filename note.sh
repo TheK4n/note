@@ -159,6 +159,7 @@ __is_note_storage_initialized() {
     prefix="$(cat "$CONFIGFILE")"
     [ -d "$prefix" ]
     [ -w "$prefix" ]
+    [ -w "$prefix/.git" ]
 }
 
 die_if_not_initialized() {
@@ -549,6 +550,11 @@ esac
 
 die_if_not_initialized
 PREFIX="$(cat "$CONFIGFILE")"
+
+
+if [[ -n "$(cmd_git status -s)" ]]; then
+    echo "$PROGRAM: WARNING: repository not clean!" 1>&2
+fi
 
 
 case "$1" in
