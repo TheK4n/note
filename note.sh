@@ -536,6 +536,10 @@ _release_lock() {
     rm "$LOCKFILE"
 }
 
+_is_repository_not_clean() {
+    [[ -n "$(cmd_git status -s)" ]]
+}
+
 if [[ ! -v 1 ]]; then
     die "Type '$PROGRAM help' for usage" 1
 fi
@@ -552,7 +556,7 @@ die_if_not_initialized
 PREFIX="$(cat "$CONFIGFILE")"
 
 
-if [[ -n "$(cmd_git status -s)" ]]; then
+if _is_repository_not_clean; then
     echo "$PROGRAM: WARNING: repository not clean!" 1>&2
 fi
 
