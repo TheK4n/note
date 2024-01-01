@@ -9,7 +9,7 @@ _note() {
         opts=$(note complete "${COMP_WORDS[1]}" 2>/dev/null)
         COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
     else
-        local commands="$(note complete bash)"
+        local commands="$(note complete bash 2>/dev/null)"
         COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
     fi
     return 0

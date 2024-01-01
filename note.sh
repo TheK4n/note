@@ -83,7 +83,7 @@ cmd_usage() {
         Prints to stdout current notes storage
     $PROGRAM export
         Export notes in tar.gz format, redirect output in stdout (use $PROGRAM export > notes.tar.gz)" >&2
-    exit 0
+    exit $1
 }
 
 cmd_version() {
@@ -124,7 +124,7 @@ cmd_init() {
         case "$opt" in
             p)
                 _validate_arg "-$opt" "$OPTARG"
-                PREFIX="$OPTARG"
+                PREFIX="$(realpath -m "$OPTARG")"
             ;;
             r)
                 _validate_arg "-$opt" "$OPTARG"
@@ -274,6 +274,7 @@ cmd_fedit() {
     die_if_depends_not_installed "$FZF_PAGER"
     export FZF_DEFAULT_OPTS="\
         --no-multi \
+        --no-sort \
         --preview-window right:60% \
         --bind ctrl-/:toggle-preview \
         --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
@@ -546,7 +547,7 @@ fi
 
 case "$1" in
     init) shift;            cmd_init         "$@" ;;
-    help|--help|-h) shift;  cmd_usage        "$@" ;;
+    help|--help|-h) shift;  cmd_usage 0      "$@" ;;
     version|-V) shift;      cmd_version      "$@" ;;
     checkhealth) shift;     cmd_checkhealth  "$@" ;;
 esac
@@ -580,15 +581,15 @@ trap _release_lock EXIT
 
 
 case "$1" in
-    edit) shift;      cmd_edit    "$@" ;;
-    fedit) shift;     cmd_fedit   "$@" ;;
-    rm) shift;        cmd_delete  "$@" ;;
-    mv) shift;        cmd_rename  "$@" ;;
-    mkdir) shift;     cmd_mkdir   "$@" ;;
-    export) shift;    cmd_export  "$@" ;;
-    sync) shift;      cmd_sync    "$@" ;;
-    git) shift;       cmd_git     "$@" ;;
+    edit) shift;      cmd_edit     "$@" ;;
+    fedit) shift;     cmd_fedit    "$@" ;;
+    rm) shift;        cmd_delete   "$@" ;;
+    mv) shift;        cmd_rename   "$@" ;;
+    mkdir) shift;     cmd_mkdir    "$@" ;;
+    export) shift;    cmd_export   "$@" ;;
+    sync) shift;      cmd_sync     "$@" ;;
+    git) shift;       cmd_git      "$@" ;;
 
-    *)                cmd_usage   "$@" ;;
+    *)                cmd_usage 1  "$@" ;;
 esac
 exit 0
