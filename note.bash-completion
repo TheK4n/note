@@ -1,4 +1,4 @@
-# Maintainer: thek4n
+# Copyright © 2022-2024 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
 
 _note() {
     local cur opts
@@ -6,7 +6,7 @@ _note() {
     if [[ $COMP_CWORD -gt 1 ]]; then
         local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
         cur="${COMP_WORDS[COMP_CWORD]}"
-        opts=$(note complete "${COMP_WORDS[1]}")
+        opts=$(note complete "${COMP_WORDS[1]}" 2>/dev/null)
         COMPREPLY+=($(compgen -W "${opts}" -- ${cur}))
     else
         local commands="$(note complete bash)"

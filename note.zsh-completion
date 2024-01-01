@@ -1,6 +1,7 @@
 #compdef note
 #autoload
 
+# Copyright © 2022-2024 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
 
 _note() {
     _arguments -A 'init' -S \
@@ -9,14 +10,14 @@ _note() {
 
     if (( CURRENT > 2)); then
         cmd=${words[2]}
-        prefix="$(note --prefix)"
+        prefix="$(note --prefix 2>/dev/null)"
         case "$cmd" in
             git) shift words; (( CURRENT-- )); GIT_DIR="$prefix/.git" GIT_WORK_TREE="$prefix" _normal;;
             edit|show|render|mv|rm|ls) _files -W "$prefix";;
             tree|mkdir) _directories -W "$prefix";;
         esac
     else
-        IFS=';' subcmds=($(note complete zsh))
+        IFS=';' subcmds=($(note complete zsh 2>/dev/null))
         _describe 'note commands' subcmds
     fi
 
