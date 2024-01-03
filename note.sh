@@ -213,7 +213,7 @@ die_if_variable_name_not_set() {
 }
 
 _is_EDITOR_valid() {
-    command -v "$EDITOR" >/dev/null
+    command -v "$EDITOR" 1>/dev/null
 }
 
 die_if_EDITOR_invalid() {
@@ -254,7 +254,7 @@ cmd_edit() {
     if [ -e "$PREFIX/$1" ]; then
         if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
             git_add "$1"
-            git_commit "Edited note $1"
+            git_commit "Edited note $1 by $HOSTNAME"
             echo "Note '$1' has been edited"
         else
             echo "Note '$1' wasn\`t edited"
@@ -380,18 +380,24 @@ cmd_export() {
     tar -C "$PREFIX" -czf - .
 }
 
+_highlight_text() {
+    local nocolor=$'\e[0m'
+    sed -e "s/${1}/${2}${1}${nocolor}/g"
+}
+
 cmd_sync() {
     local ff="Fast-forward"
     local merge="Merge"
 
     local red=$'\e[31m'
     local green=$'\e[32m'
-    local nocolor=$'\e[0m'
 
     output="$(cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit)"
-    echo -e "$output" | sed -e "s/${ff}/${green}${ff}${nocolor}/g" | sed -e "s/${merge}/${red}${merge}${nocolor}/g"
+    echo -e "$output" | \
+        _highlight_text "$ff" "$green" | \
+        _highlight_text "$merge" "$red"
 
-    if echo "$output" | grep "$merge"; then
+    if echo "$output" | grep "$merge" 1>/dev/null; then
         if _is_yes "$(_ask_user "[?] Merge detected! Push merge-commit? [N/y]" "y")"; then
             cmd_git push
         fi
