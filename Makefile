@@ -1,5 +1,5 @@
-DESTDIR :=
-PREFIX := /usr/local
+DESTDIR ?=
+PREFIX ?= /usr/local
 SCRIPTNAME = ./note.sh
 BINARY = note
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
