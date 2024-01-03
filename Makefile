@@ -28,7 +28,7 @@ test:
 	@$(SCRIPTNAME) init >/dev/null
 
 clean-test:
-	rm -rf /tmp/note.*
+	rm -rf "$(shell dirname "$(shell mktemp -u)")"/note.*
 
 uninstall:
 	rm "$(DESTDIR)$(PREFIX)/bin/$(BINARY)"
