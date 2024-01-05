@@ -21,6 +21,11 @@ Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pull
 Creates or edit existing note with $EDITOR, after save changes
 .RE
 .PP
+\fBtoday\fR
+.RS 4
+Creates or edit note with name like daily/06-01-24.md
+.RE
+.PP
 \fBfedit\fR
 .RS 4
 Find note by fzf and edit with $EDITOR
