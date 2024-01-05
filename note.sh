@@ -372,7 +372,7 @@ cmd_find() {
 }
 
 cmd_grep() {
-    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
+    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
     exit 0
 }
 
