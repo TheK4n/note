@@ -139,6 +139,12 @@ Used for
 .BR show
 command
 .PP
+.B DATE_FMT
+Used for
+.BR note
+.BR today
+command to format daily note name
+.PP
 
 .SH AUTHOR
 Kan (thek4n@yandex.ru)
