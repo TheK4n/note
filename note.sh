@@ -53,6 +53,8 @@ cmd_usage() {
         Print version and exit
     $PROGRAM edit (PATH_TO_NOTE)
         Creates or edit existing note with \$EDITOR, after save changes by git
+    $PROGRAM today
+        Creates or edit note with name like daily/06-01-24.md
     $PROGRAM fedit
         Find note by fzf and edit with \$EDITOR
     $PROGRAM show (PATH_TO_NOTE)
@@ -269,6 +271,10 @@ cmd_edit() {
             rmdir -p "$_DIRNAME"
         fi
     fi
+}
+
+cmd_today() {
+    cmd_edit "daily/$(date +${DATE_FMT:-%d-%m-%y}).md"
 }
 
 cmd_fedit() {
@@ -496,6 +502,7 @@ cmd_complete_files() {
 complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
+today:Creates or edit note with name like daily/06-01-24.md
 fedit:Find note by fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
 render:Render note in browser by grip in localhost:6751
@@ -604,6 +611,7 @@ trap _release_lock EXIT
 
 case "$1" in
     edit) shift;      cmd_edit     "$@" ;;
+    today) shift;     cmd_today    "$@" ;;
     fedit) shift;     cmd_fedit    "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
     mv) shift;        cmd_rename   "$@" ;;
