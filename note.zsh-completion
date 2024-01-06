@@ -13,7 +13,7 @@ _note() {
         prefix="$(note --prefix 2>/dev/null)"
         case "$cmd" in
             git) shift words; (( CURRENT-- )); GIT_DIR="$prefix/.git" GIT_WORK_TREE="$prefix" _normal;;
-            edit|show|render|mv|rm|ls) _files -W "$prefix";;
+            edit|show|render|mv|ln|rm|ls) _files -W "$prefix";;
             tree|mkdir) _directories -W "$prefix";;
         esac
     else

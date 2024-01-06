@@ -53,6 +53,8 @@ cmd_usage() {
         Print version and exit
     $PROGRAM edit (PATH_TO_NOTE)
         Creates or edit existing note with \$EDITOR, after save changes by git
+    $PROGRAM today
+        Creates or edit note with name like daily/06-01-24.md
     $PROGRAM fedit
         Find note by fzf and edit with \$EDITOR
     $PROGRAM show (PATH_TO_NOTE)
@@ -63,6 +65,8 @@ cmd_usage() {
         Removes note
     $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
         Rename note
+    $PROGRAM ln (PATH_TO_NOTE) (link-name)
+        Create symbolic link
     $PROGRAM ls [PATH_TO_NOTE]...
         List notes
     $PROGRAM mkdir (PATH_TO_DIR)
@@ -269,6 +273,10 @@ cmd_edit() {
     fi
 }
 
+cmd_today() {
+    cmd_edit "daily/$(date +${DATE_FMT:-%d-%m-%y}).md"
+}
+
 cmd_fedit() {
     die_if_depends_not_installed "$FZF"
     die_if_depends_not_installed "$FZF_PAGER"
@@ -291,7 +299,7 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     $PAGER "$PREFIX/$1"
     exit 0
 }
@@ -331,7 +339,7 @@ cmd_render() {
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "grip"
 
-    test -f "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     echo "http://localhost:6751 in browser"
     grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
     exit 0
@@ -351,7 +359,7 @@ cmd_rename() {
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    test -f "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
+    test -e "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
 
     _DIRNAME="$(dirname "$2")"
 
@@ -365,6 +373,19 @@ cmd_rename() {
     git_commit "Note $1 renamed to $2"
 }
 
+cmd_ln() {
+    die_if_invalid_path "$2"
+    die_if_name_not_entered "$1"
+    die_if_name_not_entered "$2"
+
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -e "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
+
+    ln -s "$PREFIX/$1" "$PREFIX/$2"
+    git_add "$2"
+    git_commit "Created symlink $2 to note $1"
+}
+
 cmd_find() {
     die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o -iname "$1" -print | _exclude_prefix
@@ -372,7 +393,7 @@ cmd_find() {
 }
 
 cmd_grep() {
-    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img"
+    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
     exit 0
 }
 
@@ -481,11 +502,13 @@ cmd_complete_files() {
 complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
+today:Creates or edit note with name like daily/06-01-24.md
 fedit:Find note by fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
 render:Render note in browser by grip in localhost:6751
 rm:Remove note
 mv:Rename note
+ln:Create symbolic link
 ls:List notes
 export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
@@ -588,9 +611,11 @@ trap _release_lock EXIT
 
 case "$1" in
     edit) shift;      cmd_edit     "$@" ;;
+    today) shift;     cmd_today    "$@" ;;
     fedit) shift;     cmd_fedit    "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
     mv) shift;        cmd_rename   "$@" ;;
+    ln) shift;        cmd_ln       "$@" ;;
     mkdir) shift;     cmd_mkdir    "$@" ;;
     export) shift;    cmd_export   "$@" ;;
     sync) shift;      cmd_sync     "$@" ;;
