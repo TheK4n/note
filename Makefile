@@ -5,7 +5,7 @@ BINARY = note
 BASHCOMPDIR ?= $(PREFIX)/share/bash-completion/completions
 ZSHCOMPDIR ?= $(PREFIX)/share/zsh/site-functions
 MANDIR ?= $(PREFIX)/share/man
-VERSION = $(shell grep pkgver PKGBUILD | sed 's/pkgver=//')
+VERSION = $(shell cat VERSION)
 
 .PHONY: all install uninstall
 

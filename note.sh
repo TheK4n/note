@@ -278,7 +278,7 @@ cmd_edit() {
 }
 
 cmd_today() {
-    cmd_edit "daily/$(date +${DATE_FMT:-%d-%m-%y}).md"
+    cmd_edit "daily/$(date "+${DATE_FMT:-%d-%m-%y}").md"
 }
 
 cmd_fedit() {
