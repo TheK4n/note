@@ -67,6 +67,8 @@ cmd_usage() {
         Create symbolic link
     $PROGRAM ls [PATH_TO_NOTE]...
         List notes
+    $PROGRAM graph
+        Make graph of notes relations in PDF format
     $PROGRAM mkdir (PATH_TO_DIR)
         Creates new directory and subdirs
     $PROGRAM tree [PATH_TO_SUBDIR]
@@ -318,6 +320,46 @@ cmd_ls() {
     exit 0
 }
 
+format_name() {
+    sed 's#\.md##' | sed 's#\/#_#g'
+}
+
+_prepare_graph() {
+    find "$PREFIX" -name '*.md' -o -name '*.html' | \
+        xargs -L 1 pandoc -f markdown >/tmp/notes.xml
+
+    a_tags="$(xmllint --html --xpath '//a[contains(@href, ".md")]' /tmp/notes.xml 2>/dev/null)"
+
+    echo "digraph G"
+    echo "{"
+
+    echo "$a_tags" | while read -r line;
+    do
+        href="$(echo "$line" | xmllint --html --xpath 'string(//a/@href)' -)"
+        value="$(echo "$line" | xmllint --html --xpath 'string(//a)' -)"
+        filename="$(grep --exclude-dir '.git' --exclude-dir '.img' -R -l "$href\|$value" "$PREFIX" | head -n 1 | _exclude_prefix)"
+
+        name="$(echo "$filename" | format_name)"
+
+        echo "_$name [label=\"$filename\"]"
+        echo "_$name [color=grey,style=filled]"
+
+        depends_name="$(dirname "$filename")/$(basename "$href")"
+
+        echo "_$name -> _$(echo "$depends_name" | format_name) [dir=forward,label=\"$value\"]"
+
+        echo "_$(echo "$depends_name" | format_name) [label=\"$depends_name\"]"
+        echo "_$(echo "$depends_name" | format_name) [color=grey,style=filled]"
+    done
+
+    echo "}"
+}
+
+cmd_graph() {
+    _prepare_graph | dot -T pdf -o /tmp/graph.pdf
+    exit 0
+}
+
 cmd_mkdir() {
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
@@ -502,6 +544,7 @@ rm:Remove note
 mv:Rename note
 ln:Create symbolic link
 ls:List notes
+graph:Make graph of notes relations in PDF format
 export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
 find:Find note by name
@@ -589,6 +632,7 @@ case "$1" in
     tree) shift;      cmd_tree         "$@" ;;
     find) shift;      cmd_find         "$@" ;;
     grep) shift;      cmd_grep         "$@" ;;
+    graph) shift;     cmd_graph        "$@" ;;
     complete) shift;  cmd_complete     "$@" ;;
     --prefix) shift;  cmd_get_storage  "$@" ;;
 esac
