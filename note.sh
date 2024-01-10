@@ -59,8 +59,6 @@ cmd_usage() {
         Find note by fzf and edit with \$EDITOR
     $PROGRAM show (PATH_TO_NOTE)
         Show note in terminal by \$PAGER
-    $PROGRAM render (PATH_TO_NOTE)
-        Render note in browser by grip in localhost:6751
     $PROGRAM rm (PATH_TO_NOTE)
         Removes note
     $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
@@ -341,17 +339,6 @@ cmd_tree() {
     exit 0
 }
 
-cmd_render() {
-    echo "WARNING: '$PROGRAM render' is now deprecated. It will be removed in later versions. Use 'PAGER=\"grip -b\" $PROGRAM show $1' instead." 1>&2
-    die_if_name_not_entered "$1"
-    die_if_depends_not_installed "grip"
-
-    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    echo "http://localhost:6751 in browser"
-    grip -b "$PREFIX/$1" localhost:6751 1>/dev/null 2>/dev/null
-    exit 0
-}
-
 cmd_delete() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
@@ -488,7 +475,6 @@ cmd_checkhealth() {
     echo -e "Is optional dependencies installed?..."
     echo -e "\t$FZF $(__warn_if_depends_not_installed $FZF)"
     echo -e "\t$FZF_PAGER $(__warn_if_depends_not_installed $FZF_PAGER)"
-    echo -e "\tgrip $(__warn_if_depends_not_installed grip)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
     exit 0
@@ -512,7 +498,6 @@ edit:Creates or edit existing note with \$EDITOR
 today:Creates or edit note with name like daily/06-01-24.md
 fedit:Find note by fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
-render:Render note in browser by grip in localhost:6751
 rm:Remove note
 mv:Rename note
 ln:Create symbolic link
@@ -549,11 +534,11 @@ cmd_get_storage() {
 
 cmd_complete() {
     case "$1" in
-        edit|show|render) shift;  cmd_complete_notes          "$@" ;;
-        tree|mkdir) shift;        cmd_complete_subdirs        "$@" ;;
-        mv|rm|ls) shift;          cmd_complete_files          "$@" ;;
-        bash) shift;              cmd_complete_bash_commands  "$@" ;;
-        zsh) shift;               cmd_complete_zsh_commands   "$@" ;;
+        edit|show) shift;   cmd_complete_notes          "$@" ;;
+        tree|mkdir) shift;  cmd_complete_subdirs        "$@" ;;
+        mv|rm|ls) shift;    cmd_complete_files          "$@" ;;
+        bash) shift;        cmd_complete_bash_commands  "$@" ;;
+        zsh) shift;         cmd_complete_zsh_commands   "$@" ;;
     esac
     exit 0
 }
@@ -600,7 +585,6 @@ fi
 
 case "$1" in
     show) shift;      cmd_show         "$@" ;;
-    render) shift;    cmd_render       "$@" ;;
     ls) shift;        cmd_ls           "$@" ;;
     tree) shift;      cmd_tree         "$@" ;;
     find) shift;      cmd_find         "$@" ;;

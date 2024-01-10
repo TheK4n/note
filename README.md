@@ -66,11 +66,16 @@ make test
 ## Usage
 
 ```bash
+export PAGER=less
+export EDITOR=nvim
 note init -p ~/.notes -r ssh://remote/home/user/.notes-storage
-note sync
 note edit someNote.md
-note render so<Tab>  # open localhost:6751 in browser
+note show someNote.md
 note git push
+```
+
+```bash
+note sync  # to automaticly pull and merge remote changes
 ```
 
 
