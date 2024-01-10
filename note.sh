@@ -119,7 +119,6 @@ _validate_arg() {
 }
 
 cmd_init() {
-
     local remote_storage
     remote_storage=""
     PREFIX="$DEFAULT_PREFIX"
@@ -216,13 +215,13 @@ die_if_variable_name_not_set() {
     fi
 }
 
-_is_EDITOR_valid() {
-    command -v "$EDITOR" 1>/dev/null
+_find_command() {
+    command -v "$1" 1>/dev/null
 }
 
-die_if_EDITOR_invalid() {
-    if ! _is_EDITOR_valid; then
-        die "EDITOR ($EDITOR) is invalid" $INVALID_STATE_CODE
+die_if_command_invalid() {
+    if ! _find_command "$1"; then
+        die "$2 ($1) is invalid" $INVALID_STATE_CODE
     fi
 }
 
@@ -230,7 +229,7 @@ cmd_edit() {
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
     die_if_variable_name_not_set "EDITOR"
-    die_if_EDITOR_invalid
+    die_if_command_invalid "${EDITOR%% *}" "EDITOR"  # check only first word of variable
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
@@ -303,6 +302,9 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
+    die_if_variable_name_not_set "PAGER"
+    die_if_command_invalid "${PAGER%% *}" "PAGER"
+
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
     $PAGER "$PREFIX/$1"
     exit 0
@@ -340,6 +342,7 @@ cmd_tree() {
 }
 
 cmd_render() {
+    echo "WARNING: '$PROGRAM render' is now deprecated. It will be removed in later versions. Use 'PAGER=\"grip -b\" $PROGRAM show $1' instead." 1>&2
     die_if_name_not_entered "$1"
     die_if_depends_not_installed "grip"
 

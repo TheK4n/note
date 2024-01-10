@@ -21,14 +21,17 @@ Simple notes storage mechanism
 
 ### Features
 
-* Synchronization by git
-* Preview markdown notes
+* Simple synchronization via git
 * Logging all notes changes with git
+* You can use your favorite editor: `EDITOR=nvim note edit something.md`
+* You can use your favorite previewer: `PAGER='grip -b' note show something.md`
+* Beautiful zsh and bash completions
+
+**It is highly recommended to use the neovim + peek.nvim plugin.**
 
 
 <a id="chapter-1"></a>
 ## Installation
-
 
 ### Dependencies
 
@@ -36,7 +39,6 @@ Dependencies:
 * git
 
 Optional dependencies:
-* grip - For render note in browser
 * bat - For render note in terminal
 * tree - Show tree of notes
 * fzf - Beauty note search
@@ -47,6 +49,11 @@ Optional dependencies:
 git clone https://github.com/thek4n/note.git
 cd note
 make install
+```
+
+### Install from AUR:
+```bash
+yay -S note-manager
 ```
 
 ### Run tests
@@ -70,6 +77,7 @@ note git push
 <a id="chapter-3"></a>
 ## Roadmap
 
+* [ ] Graph building based on markdown links
 * [X] ~~Lock-file~~
 * [X] ~~Synchronization~~
 * [X] ~~Search by notes~~
