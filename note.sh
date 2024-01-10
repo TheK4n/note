@@ -234,12 +234,12 @@ cmd_edit() {
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
-    local last_modified_time
-    if [ -e "$PREFIX/$1" ]; then
-        last_modified_time="$(stat -c '%Y' "$PREFIX/$1")"
-    else
+    local _new_note_flag
+    if [ ! -e "$PREFIX/$1" ]; then
         echo "Creating new note '$1'"
-        last_modified_time=0
+        _new_note_flag=true
+    else
+        _new_note_flag=false
     fi
 
     local _new_dir_flag
@@ -256,7 +256,11 @@ cmd_edit() {
     $EDITOR "$PREFIX/$1"
 
     if [ -e "$PREFIX/$1" ]; then
-        if [ "$last_modified_time" != "$(stat -c '%Y' "$PREFIX/$1")" ]; then
+        if $_new_note_flag; then
+            git_add "$1"
+            git_commit "Created new note $1 by $HOSTNAME"
+            echo "Note '$1' has been created"
+        elif [ -n "$(cmd_git diff "$1")" ]; then
             git_add "$1"
             git_commit "Edited note $1 by $HOSTNAME"
             echo "Note '$1' has been edited"
