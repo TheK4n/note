@@ -324,39 +324,62 @@ format_name() {
     sed 's#\.md##' | sed 's#\/#_#g'
 }
 
-_prepare_graph() {
-    find "$PREFIX" -name '*.md' -o -name '*.html' | \
-        xargs -L 1 pandoc -f markdown >/tmp/notes.xml
+_find_md_html_notes() {
+    find "$PREFIX" -name '*.md' -o -name '*.html'
+}
 
-    a_tags="$(xmllint --html --xpath '//a[contains(@href, ".md")]' /tmp/notes.xml 2>/dev/null)"
+_convert_to_xml() {
+    notename="$(echo "$1" | _exclude_prefix)"
+    new_notepath="$XDG_RUNTIME_DIR/note/note_graph/$notename"
+    mkdir -p "$(dirname "$new_notepath")"
+    pandoc -f markdown_mmd "$1" > "$new_notepath"
+}
+
+
+_build_graph() {
+    for note in $(cmd_git diff --name-only $(cat "$XDG_RUNTIME_DIR/note/graph.hash")); do
+        _convert_to_xml "$PREFIX/$note"
+    done
+    # cmd_git rev-parse HEAD > "$XDG_RUNTIME_DIR/note/graph.hash"
+}
+
+_prepare_graph() {
 
     echo "digraph G"
     echo "{"
 
-    echo "$a_tags" | while read -r line;
-    do
-        href="$(echo "$line" | xmllint --html --xpath 'string(//a/@href)' -)"
-        value="$(echo "$line" | xmllint --html --xpath 'string(//a)' -)"
-        filename="$(grep --exclude-dir '.git' --exclude-dir '.img' -R -l "$href\|$value" "$PREFIX" | head -n 1 | _exclude_prefix)"
+    local note
+    for note in $(PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _find_md_html_notes); do
+        line2="$(xmllint --html --xpath '//a[contains(@href, ".md")]' "$note" 2>/dev/null)"
 
-        name="$(echo "$filename" | format_name)"
+        if [ -n "$line2" ]; then
+            echo "$line2" | while read -r line;
+            do
+                href="$(echo "$line" | xmllint --html --xpath 'string(//a/@href)' - 2>/dev/null)"
+                value="$(echo "$line" | xmllint --html --xpath 'string(//a)' - 2>/dev/null)"
 
-        echo "_$name [label=\"$filename\"]"
-        echo "_$name [color=grey,style=filled]"
+                name="$(echo "$note" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix | format_name)"
 
-        depends_name="$(dirname "$filename")/$(basename "$href")"
+                echo "_$name [label=\"$(echo "$note" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix)\"]"
+                echo "_$name [color=grey,style=filled]"
 
-        echo "_$name -> _$(echo "$depends_name" | format_name) [dir=forward,label=\"$value\"]"
+                depends_name="$(echo "$href" | sed -e "s#^\.\//\{0,1\}##")"
 
-        echo "_$(echo "$depends_name" | format_name) [label=\"$depends_name\"]"
-        echo "_$(echo "$depends_name" | format_name) [color=grey,style=filled]"
+                echo "_$name -> _$(echo "$depends_name" | format_name) [dir=forward,label=\"$(echo "$value" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix)\"]"
+
+                echo "_$(echo "$depends_name" | format_name) [label=\"$depends_name\"]"
+                echo "_$(echo "$depends_name" | format_name) [color=grey,style=filled]"
+            done
+        fi
     done
 
     echo "}"
 }
 
 cmd_graph() {
+    _build_graph
     _prepare_graph | dot -T pdf -o /tmp/graph.pdf
+    echo "/tmp/graph.pdf"
     exit 0
 }
 
