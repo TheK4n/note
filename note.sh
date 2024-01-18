@@ -22,6 +22,8 @@ readonly PROGRAM
 readonly FZF="fzf"
 readonly FZF_PAGER="bat"
 
+readonly GRAPH_MARK="$XDG_DATA_HOME/note/graph.hash"
+
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
 readonly YELLOW='\033[1;33m'
@@ -324,29 +326,44 @@ format_name() {
     sed 's#\.md##' | sed 's#\/#_#g'
 }
 
+_convert_md_to_xml() {
+    pandoc -f markdown_mmd "$1"
+}
+
+_convert_note_to_xml() {
+    notename="$(echo "$1" | _exclude_prefix)"
+    new_notepath="$XDG_RUNTIME_DIR/note/note_graph/$notename"
+    mkdir -p "$(dirname "$new_notepath")"
+    _convert_md_to_xml "$1" > "$new_notepath"
+}
+
 _find_md_html_notes() {
     find "$PREFIX" -name '*.md' -o -name '*.html'
 }
 
-_convert_to_xml() {
-    notename="$(echo "$1" | _exclude_prefix)"
-    new_notepath="$XDG_RUNTIME_DIR/note/note_graph/$notename"
-    mkdir -p "$(dirname "$new_notepath")"
-    pandoc -f markdown_mmd "$1" > "$new_notepath"
+_save_graph_mark() {
+    cmd_git rev-parse HEAD > "$GRAPH_MARK"
+}
+
+_convert_all_notes_to_xml() {
+    for note in $(_find_md_html_notes); do
+        _convert_note_to_xml "$note"
+    done
+    _save_graph_mark
+}
+
+_convert_changed_notes_to_xml() {
+    for note in $(cmd_git diff --name-only "$(cat "$GRAPH_MARK")"); do
+        _convert_note_to_xml "$PREFIX/$note"
+    done
+    _save_graph_mark
 }
 
 
 _build_graph() {
-    for note in $(cmd_git diff --name-only $(cat "$XDG_RUNTIME_DIR/note/graph.hash")); do
-        _convert_to_xml "$PREFIX/$note"
-    done
-    # cmd_git rev-parse HEAD > "$XDG_RUNTIME_DIR/note/graph.hash"
-}
-
-_prepare_graph() {
-
     echo "digraph G"
     echo "{"
+    cd "$XDG_RUNTIME_DIR/note/note_graph"
 
     local note
     for note in $(PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _find_md_html_notes); do
@@ -359,11 +376,14 @@ _prepare_graph() {
                 value="$(echo "$line" | xmllint --html --xpath 'string(//a)' - 2>/dev/null)"
 
                 name="$(echo "$note" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix | format_name)"
-
+                
                 echo "_$name [label=\"$(echo "$note" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix)\"]"
                 echo "_$name [color=grey,style=filled]"
 
-                depends_name="$(echo "$href" | sed -e "s#^\.\//\{0,1\}##")"
+                # pushd "$(dirname "$note")"
+                echo "$note"
+                # realpath потом exlude
+                depends_name="$(realpath --relative-to="$PREFIX" "$href")"
 
                 echo "_$name -> _$(echo "$depends_name" | format_name) [dir=forward,label=\"$(echo "$value" | PREFIX="$XDG_RUNTIME_DIR/note/note_graph" _exclude_prefix)\"]"
 
@@ -373,13 +393,24 @@ _prepare_graph() {
         fi
     done
 
+    cmd_git rev-parse HEAD > "$XDG_RUNTIME_DIR/note/graph.hash"
+
     echo "}"
 }
 
+
+_build_and_show_graph() {
+    _convert_changed_notes_to_xml
+    _build_graph | dot -T pdf -o notes-graph.pdf
+    echo "notes-graph.pdf"
+}
+
+
 cmd_graph() {
-    _build_graph
-    _prepare_graph | dot -T pdf -o /tmp/graph.pdf
-    echo "/tmp/graph.pdf"
+    case "$1" in
+        init) shift;   _convert_all_notes_to_xml  "$@" ;;
+        build) shift;  _build_and_show_graph "$@" ;;
+    esac
     exit 0
 }
 
