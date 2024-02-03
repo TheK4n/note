@@ -11,6 +11,7 @@ readonly DEFAULT_PREFIX="$HOME/.notes"
 
 : "${XDG_RUNTIME_DIR:=$HOME/.local/state}"
 readonly LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
+readonly LAST_EDIT_NOTE="$XDG_RUNTIME_DIR/note/last"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
@@ -55,6 +56,8 @@ cmd_usage() {
         Creates or edit existing note with \$EDITOR, after save changes by git
     $PROGRAM today
         Creates or edit note with name like daily/06-01-24.md
+    $PROGRAM last
+        Edit last opened note
     $PROGRAM fedit
         Find note by fzf and edit with \$EDITOR
     $PROGRAM show (PATH_TO_NOTE)
@@ -250,6 +253,7 @@ cmd_edit() {
         _new_dir_flag=true
     fi
 
+    echo "$1" > "$LAST_EDIT_NOTE"
     $EDITOR "$PREFIX/$1"
 
     if [ -e "$PREFIX/$1" ]; then
@@ -276,6 +280,13 @@ cmd_edit() {
 
 cmd_today() {
     cmd_edit "daily/$(date "+${DATE_FMT:-%d-%m-%y}").md"
+}
+
+cmd_last() {
+    if [ ! -e "$LAST_EDIT_NOTE" ] || [ -z "$(cat "$LAST_EDIT_NOTE")"  ]; then
+        die "No last note" $INVALID_STATE_CODE
+    fi
+    cmd_edit "$(cat "$LAST_EDIT_NOTE")"
 }
 
 cmd_fedit() {
@@ -496,6 +507,7 @@ complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
 today:Creates or edit note with name like daily/06-01-24.md
+last:edit opened note
 fedit:Find note by fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
 rm:Remove note
@@ -601,16 +613,17 @@ trap _release_lock EXIT
 
 
 case "$1" in
-    edit) shift;      cmd_edit     "$@" ;;
-    today) shift;     cmd_today    "$@" ;;
-    fedit) shift;     cmd_fedit    "$@" ;;
-    rm) shift;        cmd_delete   "$@" ;;
-    mv) shift;        cmd_rename   "$@" ;;
-    ln) shift;        cmd_ln       "$@" ;;
-    mkdir) shift;     cmd_mkdir    "$@" ;;
-    export) shift;    cmd_export   "$@" ;;
-    sync) shift;      cmd_sync     "$@" ;;
-    git) shift;       cmd_git      "$@" ;;
+    edit) shift;    cmd_edit    "$@" ;;
+    today) shift;   cmd_today   "$@" ;;
+    fedit) shift;   cmd_fedit   "$@" ;;
+    last) shift;    cmd_last    "$@" ;;
+    rm) shift;      cmd_delete  "$@" ;;
+    mv) shift;      cmd_rename  "$@" ;;
+    ln) shift;      cmd_ln      "$@" ;;
+    mkdir) shift;   cmd_mkdir   "$@" ;;
+    export) shift;  cmd_export  "$@" ;;
+    sync) shift;    cmd_sync    "$@" ;;
+    git) shift;     cmd_git     "$@" ;;
 
     *)                cmd_usage 1  "$@" ;;
 esac

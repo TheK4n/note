@@ -26,6 +26,11 @@ Creates or edit existing note with $EDITOR, after save changes
 Creates or edit note with name like daily/06-01-24.md
 .RE
 .PP
+\fBlast\fR
+.RS 4
+Edit last opened note
+.RE
+.PP
 \fBfedit\fR
 .RS 4
 Find note by fzf and edit with $EDITOR
