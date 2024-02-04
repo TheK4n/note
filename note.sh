@@ -588,7 +588,7 @@ esac
 
 die_if_not_initialized
 PREFIX="$(cat "$CONFIGFILE")"
-
+cd "$PREFIX"
 
 if _is_repository_not_clean; then
     echo "$PROGRAM: WARNING: repository not clean!" 1>&2
