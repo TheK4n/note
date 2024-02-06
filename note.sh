@@ -298,6 +298,21 @@ cmd_fedit() {
     cmd_edit "$(cmd_complete_notes | $FZF --query "${1:-}")"
 }
 
+cmd_fg() {
+    die_if_depends_not_installed "$FZF"
+    die_if_depends_not_installed "$FZF_PAGER"
+    die_if_depends_not_installed "rg"
+
+    RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+    INITIAL_QUERY="${1:-}"
+    local res
+    res="$(FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
+        fzf --bind "change:reload:$RG_PREFIX {q} || true" \
+        --ansi --disabled --query "$INITIAL_QUERY")"
+
+    cmd_edit "${res%%:*}"
+}
+
 cmd_list() {
     die_if_invalid_path "$*"
     cd "$PREFIX"
@@ -612,6 +627,7 @@ case "$1" in
     edit) shift;    cmd_edit    "$@" ;;
     today) shift;   cmd_today   "$@" ;;
     fedit) shift;   cmd_fedit   "$@" ;;
+    fg) shift;  cmd_fg  "$@" ;;
     last) shift;    cmd_last    "$@" ;;
     rm) shift;      cmd_delete  "$@" ;;
     mv) shift;      cmd_rename  "$@" ;;
@@ -621,6 +637,6 @@ case "$1" in
     sync) shift;    cmd_sync    "$@" ;;
     git) shift;     cmd_git     "$@" ;;
 
-    *)                cmd_usage 1  "$@" ;;
+    *)              cmd_usage 1 "$@" ;;
 esac
 exit 0
