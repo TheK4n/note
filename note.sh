@@ -216,12 +216,8 @@ die_if_variable_name_not_set() {
     fi
 }
 
-_find_command() {
-    command -v "$1" 1>/dev/null
-}
-
 die_if_command_invalid() {
-    if ! _find_command "$1"; then
+    if ! _is_depends_installed "$1"; then
         die "$2 ($1) is invalid" $INVALID_STATE_CODE
     fi
 }
@@ -452,7 +448,7 @@ __error_if_storage_not_initialized() {
 }
 
 __error_if_invalid_EDITOR_variable() {
-    if _is_variable_set "EDITOR" && _is_EDITOR_valid; then
+    if _is_variable_set "EDITOR" && _is_depends_installed "$EDITOR"; then
         echo -e "$OK_MESSAGE"
     else
         echo -e "$ERROR_MESSAGE"
