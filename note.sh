@@ -80,7 +80,7 @@ cmd_usage() {
     $PROGRAM find (NOTE_NAME)
         Find note with name
     $PROGRAM grep (PATTERN)
-        Find notes by pattern
+        Find notes by pattern
     $PROGRAM checkhealth
         Check installed dependencies and initialized storage
     $PROGRAM sync
