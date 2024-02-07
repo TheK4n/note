@@ -320,6 +320,8 @@ cmd_fg() {
         lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
         $FZF_PAGER --plain --wrap=never --color=always \
         -H \$lineno \
+        -r \$lineno:-\$((LINES-4)) \
+        -r \$lineno:+\$((LINES-4)) \
         $PREFIX/\${rgout%%:*}\""
 
     RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
@@ -515,6 +517,7 @@ cmd_checkhealth() {
     echo -e "Is optional dependencies installed?..."
     echo -e "\t$FZF $(__warn_if_depends_not_installed $FZF)"
     echo -e "\t$FZF_PAGER $(__warn_if_depends_not_installed $FZF_PAGER)"
+    echo -e "\t$RG $(__warn_if_depends_not_installed $RG)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
     exit 0

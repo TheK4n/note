@@ -22,7 +22,7 @@ Simple notes storage mechanism
 ### Features
 
 * Simple synchronization via git
-* Integration with fzf
+* FZF Integration
 * Beautiful zsh and bash completions
 * You can use your favorite editor: `EDITOR=nvim note edit something.md`
 * You can use your favorite previewer: `PAGER='grip -b' note show something.md`
