@@ -316,8 +316,11 @@ cmd_fg() {
         --no-sort \
         --preview-window right:40% \
         --bind ctrl-/:toggle-preview \
-        --preview=\"$FZF_PAGER --plain --wrap=never --color=always \
-        $PREFIX/\$(echo {} | awk -F: '{print \$1}')\""
+        --preview=\"rgout={}; \
+        lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
+        $FZF_PAGER --plain --wrap=never --color=always \
+        -H \$lineno \
+        $PREFIX/\${rgout%%:*}\""
 
     RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
     local choosed_note
