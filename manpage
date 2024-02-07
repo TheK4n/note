@@ -36,6 +36,11 @@ Edit last opened note
 Find note by fzf and edit with $EDITOR
 .RE
 .PP
+\fBfg\fR
+.RS 4
+Find note by content with fzf and edit with $EDITOR
+.RE
+.PP
 \fBsync\fR
 .RS 4
 Pull changes from remote note storage. In case of conflict, accepts yours changes.

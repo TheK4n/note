@@ -15,17 +15,18 @@
 
 
 <a id="chapter-0"></a>
-## Project description 
+## Project description
 
 Simple notes storage mechanism
 
 ### Features
 
 * Simple synchronization via git
-* Logging all notes changes with git
+* Integration with fzf
+* Beautiful zsh and bash completions
 * You can use your favorite editor: `EDITOR=nvim note edit something.md`
 * You can use your favorite previewer: `PAGER='grip -b' note show something.md`
-* Beautiful zsh and bash completions
+* Logging all notes changes with git
 
 **It is highly recommended to use the neovim + peek.nvim plugin.**
 
@@ -39,9 +40,10 @@ Dependencies:
 * git
 
 Optional dependencies:
-* bat - For render note in terminal
+* bat - For render notes in terminal
 * tree - Show tree of notes
-* fzf - Beauty note search
+* fzf - Beauty notes search
+* rg - Search notes by content
 
 
 ### Install from source:

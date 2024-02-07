@@ -22,6 +22,7 @@ readonly PROGRAM
 
 readonly FZF="fzf"
 readonly FZF_PAGER="bat"
+readonly RG="rg"
 
 readonly GREEN='\033[0;32m'
 readonly RED='\033[0;31m'
@@ -60,6 +61,8 @@ cmd_usage() {
         Edit last opened note
     $PROGRAM fedit
         Find note by fzf and edit with \$EDITOR
+    $PROGRAM fg
+        Find note by content with fzf and edit with \$EDITOR
     $PROGRAM show (PATH_TO_NOTE)
         Show note in terminal by \$PAGER
     $PROGRAM rm (PATH_TO_NOTE)
@@ -288,6 +291,9 @@ cmd_last() {
 cmd_fedit() {
     die_if_depends_not_installed "$FZF"
     die_if_depends_not_installed "$FZF_PAGER"
+
+    INITIAL_QUERY="${1:-}"
+
     export FZF_DEFAULT_OPTS="\
         --no-multi \
         --no-sort \
@@ -295,22 +301,31 @@ cmd_fedit() {
         --bind ctrl-/:toggle-preview \
         --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
 
-    cmd_edit "$(cmd_complete_notes | $FZF --query "${1:-}")"
+    cmd_edit "$(cmd_complete_notes | $FZF --query "$INITIAL_QUERY")"
 }
 
 cmd_fg() {
     die_if_depends_not_installed "$FZF"
     die_if_depends_not_installed "$FZF_PAGER"
-    die_if_depends_not_installed "rg"
+    die_if_depends_not_installed "$RG"
 
-    RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
     INITIAL_QUERY="${1:-}"
-    local res
-    res="$(FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
-        fzf --bind "change:reload:$RG_PREFIX {q} || true" \
-        --ansi --disabled --query "$INITIAL_QUERY")"
 
-    cmd_edit "${res%%:*}"
+    export FZF_DEFAULT_OPTS="\
+        --no-multi \
+        --no-sort \
+        --preview-window right:40% \
+        --bind ctrl-/:toggle-preview \
+        --preview=\"$FZF_PAGER --plain --wrap=never --color=always \
+        $PREFIX/\$(echo {} | awk -F: '{print \$1}')\""
+
+    RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
+    local choosed_note
+    choosed_note="$(FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
+           $FZF --bind "change:reload:$RG_PREFIX {q} || true" \
+           --ansi --disabled --query "$INITIAL_QUERY")"
+
+    cmd_edit "${choosed_note%%:*}"
 }
 
 cmd_list() {
@@ -520,6 +535,7 @@ edit:Creates or edit existing note with \$EDITOR
 today:Creates or edit note with name like daily/06-01-24.md
 last:edit opened note
 fedit:Find note by fzf and edit with \$EDITOR
+fg:Find note by content with fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
 rm:Remove note
 mv:Rename note
@@ -627,7 +643,7 @@ case "$1" in
     edit) shift;    cmd_edit    "$@" ;;
     today) shift;   cmd_today   "$@" ;;
     fedit) shift;   cmd_fedit   "$@" ;;
-    fg) shift;  cmd_fg  "$@" ;;
+    fg) shift;      cmd_fg      "$@" ;;
     last) shift;    cmd_last    "$@" ;;
     rm) shift;      cmd_delete  "$@" ;;
     mv) shift;      cmd_rename  "$@" ;;
