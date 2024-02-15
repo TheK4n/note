@@ -629,8 +629,8 @@ fi
 
 
 case "$1" in
-    show) shift;      cmd_show         "$@" ;;
-    ls) shift;        cmd_ls           "$@" ;;
+    show|cat) shift;  cmd_show         "$@" ;;
+    list|ls) shift;   cmd_ls           "$@" ;;
     tree) shift;      cmd_tree         "$@" ;;
     find) shift;      cmd_find         "$@" ;;
     grep) shift;      cmd_grep         "$@" ;;
@@ -646,18 +646,18 @@ trap _release_lock EXIT
 
 
 case "$1" in
-    edit) shift;    cmd_edit    "$@" ;;
-    today) shift;   cmd_today   "$@" ;;
-    fedit) shift;   cmd_fedit   "$@" ;;
-    fg) shift;      cmd_fg      "$@" ;;
-    last) shift;    cmd_last    "$@" ;;
-    rm) shift;      cmd_delete  "$@" ;;
-    mv) shift;      cmd_rename  "$@" ;;
-    ln) shift;      cmd_ln      "$@" ;;
-    mkdir) shift;   cmd_mkdir   "$@" ;;
-    export) shift;  cmd_export  "$@" ;;
-    sync) shift;    cmd_sync    "$@" ;;
-    git) shift;     cmd_git     "$@" ;;
+    edit|e) shift;    cmd_edit    "$@" ;;
+    today) shift;     cmd_today   "$@" ;;
+    fedit|fe) shift;  cmd_fedit   "$@" ;;
+    fgrep|fg) shift;  cmd_fg      "$@" ;;
+    last) shift;      cmd_last    "$@" ;;
+    rm) shift;        cmd_delete  "$@" ;;
+    mv) shift;        cmd_rename  "$@" ;;
+    ln) shift;        cmd_ln      "$@" ;;
+    mkdir) shift;     cmd_mkdir   "$@" ;;
+    export) shift;    cmd_export  "$@" ;;
+    sync) shift;      cmd_sync    "$@" ;;
+    git) shift;       cmd_git     "$@" ;;
 
     *)              cmd_usage 1 "$@" ;;
 esac
