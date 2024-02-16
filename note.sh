@@ -538,20 +538,20 @@ cmd_complete_files() {
 complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
-e:Creates or edit existing note with \$EDITOR
+e:Creates or edit existing note with \$EDITOR (alias)
 today:Creates or edit note with name like daily/06-01-24.md
 last:edit opened note
 fedit:Find note by fzf and edit with \$EDITOR
-fe:Find note by fzf and edit with \$EDITOR
+fe:Find note by fzf and edit with \$EDITOR (alias)
 fgrep:Find note by content with fzf and edit with \$EDITOR
-fg:Find note by content with fzf and edit with \$EDITOR
+fg:Find note by content with fzf and edit with \$EDITOR (alias)
 show:Render note in terminal by \$PAGER
-cat:Render note in terminal by \$PAGER
+cat:Render note in terminal by \$PAGER (alias)
 rm:Remove note
 mv:Rename note
 ln:Create symbolic link
-ls:List notes
 list:List notes
+ls:List notes (alias)
 export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
 find:Find note by name
