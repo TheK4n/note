@@ -33,6 +33,6 @@ clean-test:
 uninstall:
 	rm "$(DESTDIR)$(PREFIX)/bin/$(BINARY)"
 	rm "$(DESTDIR)$(MANDIR)/man1/$(BINARY).1"
-	rm "$(DESTDIR)$(PREFIX)/share/licenses/$(BINARY)"
+	rm -r "$(DESTDIR)$(PREFIX)/share/licenses/$(BINARY)"
 	test -e "$(DESTDIR)$(BASHCOMPDIR)/$(BINARY)" && rm "$(DESTDIR)$(BASHCOMPDIR)/$(BINARY)"
 	test -e "$(DESTDIR)$(ZSHCOMPDIR)/_$(BINARY)" && rm "$(DESTDIR)$(ZSHCOMPDIR)/_$(BINARY)"
