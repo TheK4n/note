@@ -16,7 +16,7 @@ CLI Notes manager.
 Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
 .RE
 .PP
-\fBedit (PATH_TO_NOTE)\fR
+\fBedit|e (PATH_TO_NOTE)\fR
 .RS 4
 Creates or edit existing note with $EDITOR, after save changes
 .RE
@@ -31,12 +31,12 @@ Creates or edit note with name like daily/06-01-24.md
 Edit last opened note
 .RE
 .PP
-\fBfedit\fR
+\fBfedit|fe\fR
 .RS 4
 Find note by fzf and edit with $EDITOR
 .RE
 .PP
-\fBfg\fR
+\fBfgrep|fg\fR
 .RS 4
 Find note by content with fzf and edit with $EDITOR
 .RE
@@ -51,19 +51,14 @@ Pull changes from remote note storage. In case of conflict, accepts yours change
 Proxy commands to git
 .RE
 .PP
-\fBls [PATH_TO_NOTE]...\fR
+\fBlist|ls [PATH_TO_NOTE]...\fR
 .RS 4
 List notes
 .RE
 .PP
-\fBshow (PATH_TO_NOTE)\fR
+\fBshow|cat (PATH_TO_NOTE)\fR
 .RS 4
 Render note in terminal by bat
-.RE
-.PP
-\fBrender (PATH_TO_NOTE)\fR
-.RS 4
-Render note in browser by grip on localhost:6751
 .RE
 .PP
 \fBmv (PATH_TO_NOTE) (PATH_TO_NEW_NOTE)\fR
@@ -128,7 +123,7 @@ $ note init -r ssh://remote/notes-storage
 
 $ note edit someNote.md
 
-$ note render someNote.md
+$ note show someNote.md
 
 .SH OPTIONAL DEPENDENCIES
 python-grip, bat

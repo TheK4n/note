@@ -53,17 +53,17 @@ cmd_usage() {
         Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
     $PROGRAM version
         Print version and exit
-    $PROGRAM edit (PATH_TO_NOTE)
+    $PROGRAM edit|e (PATH_TO_NOTE)
         Creates or edit existing note with \$EDITOR, after save changes by git
     $PROGRAM today
         Creates or edit note with name like daily/06-01-24.md
     $PROGRAM last
         Edit last opened note
-    $PROGRAM fedit
+    $PROGRAM fedit|fe
         Find note by fzf and edit with \$EDITOR
-    $PROGRAM fg
+    $PROGRAM fgrep|fg
         Find note by content with fzf and edit with \$EDITOR
-    $PROGRAM show (PATH_TO_NOTE)
+    $PROGRAM show|cat (PATH_TO_NOTE)
         Show note in terminal by \$PAGER
     $PROGRAM rm (PATH_TO_NOTE)
         Removes note
@@ -71,7 +71,7 @@ cmd_usage() {
         Rename note
     $PROGRAM ln (PATH_TO_NOTE) (link-name)
         Create symbolic link
-    $PROGRAM ls [PATH_TO_NOTE]...
+    $PROGRAM ls|list [PATH_TO_NOTE]...
         List notes
     $PROGRAM mkdir (PATH_TO_DIR)
         Creates new directory and subdirs
@@ -538,15 +538,20 @@ cmd_complete_files() {
 complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
 edit:Creates or edit existing note with \$EDITOR
+e:Creates or edit existing note with \$EDITOR
 today:Creates or edit note with name like daily/06-01-24.md
 last:edit opened note
 fedit:Find note by fzf and edit with \$EDITOR
+fe:Find note by fzf and edit with \$EDITOR
+fgrep:Find note by content with fzf and edit with \$EDITOR
 fg:Find note by content with fzf and edit with \$EDITOR
 show:Render note in terminal by \$PAGER
+cat:Render note in terminal by \$PAGER
 rm:Remove note
 mv:Rename note
 ln:Create symbolic link
 ls:List notes
+list:List notes
 export:Export notes in tar.gz format, redirect output in stdout
 tree:Show tree of notes
 find:Find note by name
@@ -579,11 +584,11 @@ cmd_get_storage() {
 
 cmd_complete() {
     case "$1" in
-        edit|show) shift;   cmd_complete_notes          "$@" ;;
-        tree|mkdir) shift;  cmd_complete_subdirs        "$@" ;;
-        mv|rm|ls) shift;    cmd_complete_files          "$@" ;;
-        bash) shift;        cmd_complete_bash_commands  "$@" ;;
-        zsh) shift;         cmd_complete_zsh_commands   "$@" ;;
+        edit|e|fe|show|cat) shift;  cmd_complete_notes          "$@" ;;
+        tree|mkdir) shift;          cmd_complete_subdirs        "$@" ;;
+        mv|rm|ls|list) shift;       cmd_complete_files          "$@" ;;
+        bash) shift;                cmd_complete_bash_commands  "$@" ;;
+        zsh) shift;                 cmd_complete_zsh_commands   "$@" ;;
     esac
     exit 0
 }
@@ -659,6 +664,6 @@ case "$1" in
     sync) shift;      cmd_sync    "$@" ;;
     git) shift;       cmd_git     "$@" ;;
 
-    *)              cmd_usage 1 "$@" ;;
+    *)                cmd_usage 1 "$@" ;;
 esac
 exit 0
