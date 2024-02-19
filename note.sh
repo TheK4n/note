@@ -320,8 +320,8 @@ cmd_fg() {
         lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
         $FZF_PAGER --plain --wrap=never --color=always \
         -H \$lineno \
-        -r \$lineno:-\$((LINES-4)) \
-        -r \$lineno:+\$((LINES-4)) \
+        -r \$lineno:-\$((LINES/2-2)) \
+        -r \$lineno:+\$((LINES-2)) \
         $PREFIX/\${rgout%%:*}\""
 
     RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
