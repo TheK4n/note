@@ -187,7 +187,12 @@ git_add() {
     cmd_git add "$1"
 }
 
+
 git_commit() {
+    cmd_git commit
+}
+
+git_commit_m() {
     cmd_git commit -m "$1" 1>/dev/null
 }
 
@@ -233,6 +238,22 @@ cmd_edit() {
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
+    local _edit_commit_message=false
+
+    while getopts ":m" opt; do
+        case "$opt" in
+            m)
+                _edit_commit_message=true
+            ;;
+            :)
+                die "Option -$OPTARG requires an argument" $INVALID_ARG_CODE
+            ;;
+            \?)
+                die "Invalid option: -$OPTARG" $INVALID_OPT_CODE
+            ;;
+        esac
+    done
+
     local _new_note_flag
     if [ ! -e "$PREFIX/$1" ]; then
         echo "Creating new note '$1'"
@@ -258,11 +279,21 @@ cmd_edit() {
     if [ -e "$PREFIX/$1" ]; then
         if $_new_note_flag; then
             git_add "$1"
-            git_commit "Created new note $1 by $HOSTNAME"
+            if $_edit_commit_message; then
+                git_commit
+            else
+                git_commit_m "Created new note $1 by $HOSTNAME"
+            fi
             echo "Note '$1' has been created"
         elif [ -n "$(cmd_git diff "$1")" ]; then
             git_add "$1"
-            git_commit "Edited note $1 by $HOSTNAME"
+
+            if $_edit_commit_message; then
+                git_commit
+            else
+                git_commit "Edited note $1 by $HOSTNAME"
+            fi
+
             echo "Note '$1' has been edited"
         else
             echo "Note '$1' wasn\`t edited"
