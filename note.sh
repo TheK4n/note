@@ -294,11 +294,10 @@ cmd_fedit() {
 
     INITIAL_QUERY="${1:-}"
 
-    export FZF_DEFAULT_OPTS="\
+    export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
         --no-multi \
         --no-sort \
         --preview-window right:60% \
-        --bind ctrl-/:toggle-preview \
         --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
 
     cmd_edit "$(cmd_complete_notes | $FZF --query "$INITIAL_QUERY")"
@@ -311,11 +310,10 @@ cmd_fg() {
 
     INITIAL_QUERY="${1:-}"
 
-    export FZF_DEFAULT_OPTS="\
+    export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
         --no-multi \
         --no-sort \
         --preview-window right:40% \
-        --bind ctrl-/:toggle-preview \
         --preview=\"rgout={}; \
         lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
         $FZF_PAGER --plain --wrap=never --color=always \
