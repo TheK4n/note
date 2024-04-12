@@ -6,27 +6,27 @@
   <a href="https://github.com/TheK4n">
     <img src="https://img.shields.io/github/followers/TheK4n?label=Follow&style=social">
   </a>
+  <a href="https://github.com/TheK4n/note">
+    <img src="https://img.shields.io/github/stars/TheK4n/note?style=social">
+  </a>
 </p>
 
-* [Project description](#chapter-0)
-* [Installation](#chapter-1)
-* [Usage](#chapter-2)
-* [Roadmap](#chapter-3)
+* [Features](#features)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Roadmap](#roadmap)
 
-
-<a id="chapter-0"></a>
-## Project description
+---
 
 Simple notes storage mechanism
 
-### Features
+## Features
 
 * Simple synchronization via git
 * FZF Integration
-* Beautiful zsh and bash completions
-* You can use your favorite editor: `EDITOR=nvim note edit something.md`
-* You can use your favorite previewer: `PAGER='grip -b' note show something.md`
-* Logging all notes changes with git
+* Friendly zsh and bash completions
+* Saving all notes changes with git
+* It uses default environment variables such as `EDITOR` and `PAGER`
 
 
 > [!NOTE]
@@ -56,7 +56,7 @@ cd note
 make install
 ```
 
-### Install from AUR:
+### Install from [AUR](https://aur.archlinux.org/packages/note-manager) (recommended):
 ```bash
 yay -S note-manager
 ```
@@ -67,9 +67,7 @@ make test
 ```
 
 
-<a id="chapter-2"></a>
 ## Usage
-
 ```bash
 export PAGER=less
 export EDITOR=nvim
@@ -78,6 +76,8 @@ note edit someNote.md
 note show someNote.md
 note git push
 ```
+
+---
 
 ```bash
 note sync  # to automaticly pull and merge remote changes
@@ -88,7 +88,6 @@ note sync  # to automaticly pull and merge remote changes
 > You can also check out `man note` for documentation.
 
 
-<a id="chapter-3"></a>
 ## Roadmap
 
 * [ ] Graph building based on markdown links
