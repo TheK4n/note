@@ -26,7 +26,7 @@ Simple notes storage mechanism
 * FZF Integration
 * Friendly zsh and bash completions
 * Saving all notes changes with git
-* It uses default environment variables such as `EDITOR` and `PAGER`
+* It respects widely used environment variables such as `EDITOR` and `PAGER`
 
 
 > [!NOTE]
@@ -92,11 +92,11 @@ note sync  # to automaticly pull and merge remote changes
 
 [Grip](https://github.com/joeyespo/grip)
 ```bash
-PAGER="grib -b" note show someNote.md
+NOTEPAGER="grib -b" note show someNote.md
 ```
 [Glow](https://github.com/charmbracelet/glow)
 ```bash
-PAGER="glow" note show someNote.md
+NOTEPAGER="glow" note show someNote.md
 ```
 
 ## Roadmap

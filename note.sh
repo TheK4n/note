@@ -64,7 +64,7 @@ cmd_usage() {
     $PROGRAM fgrep|fg
         Find note by content with fzf and edit with \$EDITOR
     $PROGRAM show|cat (PATH_TO_NOTE)
-        Show note in terminal by \$PAGER
+        Show note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
     $PROGRAM rm (PATH_TO_NOTE)
         Removes note
     $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
@@ -341,10 +341,17 @@ cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     die_if_variable_name_not_set "PAGER"
-    die_if_command_invalid "${PAGER%% *}" "PAGER"
 
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    $PAGER "$PREFIX/$1"
+
+    if _is_variable_set "NOTEPAGER"; then
+        die_if_command_invalid "${NOTEPAGER%% *}" "NOTEPAGER"
+        $NOTEPAGER "$PREFIX/$1"
+    else
+        die_if_command_invalid "${PAGER%% *}" "PAGER"
+        $PAGER "$PREFIX/$1"
+    fi
+
     exit 0
 }
 
@@ -543,7 +550,7 @@ fedit:Find note by fzf and edit with \$EDITOR
 fe:Find note by fzf and edit with \$EDITOR (alias)
 fgrep:Find note by content with fzf and edit with \$EDITOR
 fg:Find note by content with fzf and edit with \$EDITOR (alias)
-show:Render note in terminal by \$PAGER
+show:Render note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
 cat:Render note in terminal by \$PAGER (alias)
 rm:Remove note
 mv:Rename note

@@ -143,11 +143,19 @@ python-grip, bat
 .B EDITOR
 The name of the editor
 .PP
-.B PAGER
+.B NOTEPAGER
 Used for
 .BR note
 .BR show
 command
+.PP
+.B PAGER
+Used for
+.BR note
+.BR show
+command if
+.BR NOTEPAGER
+not defined
 .PP
 .B DATE_FMT
 Used for
