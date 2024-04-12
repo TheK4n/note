@@ -31,7 +31,7 @@ Simple notes storage mechanism
 
 > [!NOTE]
 >
-> It is highly recommended to use the `neovim` as editor and `peek.nvim` plugin as markdown previewer
+> It is highly recommended to use the [neovim](https://github.com/neovim/neovim) as editor and [peek.nvim](https://github.com/toppair/peek.nvim) plugin as markdown previewer
 
 
 <a id="chapter-1"></a>
@@ -87,6 +87,17 @@ note sync  # to automaticly pull and merge remote changes
 >
 > You can also check out `man note` for documentation.
 
+
+### Other markdown previewers
+
+[Grip](https://github.com/joeyespo/grip)
+```bash
+PAGER="grib -b" note show someNote.md
+```
+[Glow](https://github.com/charmbracelet/glow)
+```bash
+PAGER="glow" note show someNote.md
+```
 
 ## Roadmap
 
