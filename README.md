@@ -28,7 +28,10 @@ Simple notes storage mechanism
 * You can use your favorite previewer: `PAGER='grip -b' note show something.md`
 * Logging all notes changes with git
 
-**It is highly recommended to use the neovim + peek.nvim plugin.**
+
+> [!NOTE]
+>
+> It is highly recommended to use the `neovim` as editor and `peek.nvim` plugin as markdown previewer
 
 
 <a id="chapter-1"></a>
@@ -79,6 +82,10 @@ note git push
 ```bash
 note sync  # to automaticly pull and merge remote changes
 ```
+
+> [!NOTE]
+>
+> You can also check out `man note` for documentation.
 
 
 <a id="chapter-3"></a>
