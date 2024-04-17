@@ -390,8 +390,7 @@ cmd_delete() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    rm -r "${PREFIX:?PREFIX is Null}/$1"
-    git_add "$1"
+    cmd_git rm -r "$1"
     git_commit "Removed note $1"
 }
 
