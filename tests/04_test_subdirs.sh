@@ -12,8 +12,8 @@ test -d "$storage/$subdir"
 
 
 echo ">>> $0 >>> Test removing empty dir"
-"$script" rm "$subdir" || true ######
-[ ! -e "$storage/$subdir" ]
+! "$script" rm "$subdir"
+[ -e "$storage/$subdir" ]
 
 
 echo ">>> $0 >>> Test command 'edit' with path creating directory"

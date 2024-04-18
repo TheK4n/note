@@ -3,6 +3,7 @@ set -ue
 
 
 export EDITOR=tee
-export CAT=cat
+export PAGER=cat
+export NOTEPAGER=cat
 
 script="./note.sh"

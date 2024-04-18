@@ -8,7 +8,7 @@ set -m
 echo ">>> $0 >>> Test edit command locks other edit command"
 "$script" edit somenote.md &
 sleep 1
-if echo "." | "$script" edit somenote.md 1>/dev/null; then false; else true; fi
+echo "." | { ! "$script" edit somenote.md 1>/dev/null; }
 kill %1
 
 
