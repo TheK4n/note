@@ -447,6 +447,11 @@ _highlight_text() {
 }
 
 cmd_sync() {
+
+    if cmd_git push; then
+        return
+    fi
+
     local ff="Fast-forward"
     local merge="Merge"
 
