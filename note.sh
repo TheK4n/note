@@ -54,15 +54,15 @@ cmd_usage() {
     $PROGRAM version
         Print version and exit
     $PROGRAM edit|e (PATH_TO_NOTE)
-        Creates or edit existing note with \$EDITOR, after save changes by git
+        Creates or edit existing note with \$VISUAL, after save changes by git
     $PROGRAM today
         Creates or edit note with name like daily/06-01-24.md
     $PROGRAM last
         Edit last opened note
     $PROGRAM fedit|fe
-        Find note by fzf and edit with \$EDITOR
+        Find note by fzf and edit with \$VISUAL
     $PROGRAM fgrep|fg
-        Find note by content with fzf and edit with \$EDITOR
+        Find note by content with fzf and edit with \$VISUAL
     $PROGRAM show|cat (PATH_TO_NOTE)
         Show note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
     $PROGRAM rm (PATH_TO_NOTE)
@@ -219,17 +219,27 @@ die_if_variable_name_not_set() {
     fi
 }
 
+_is_first_command_in_variable_are_program() {
+    command -v "${1%% *}" &>/dev/null
+}
+
 die_if_command_invalid() {
-    if ! _is_depends_installed "$1"; then
-        die "$2 ($1) is invalid" $INVALID_STATE_CODE
+    if ! _is_first_command_in_variable_are_program "$1"; then
+        die "$1 is invalid" $INVALID_STATE_CODE
     fi
 }
 
 cmd_edit() {
+    if ! _is_variable_set "VISUAL" || ! _is_first_command_in_variable_are_program "$VISUAL"; then
+        if ! _is_variable_set "EDITOR" || ! _is_first_command_in_variable_are_program "$EDITOR"; then
+            die "EDITOR ($EDITOR) is invalid" $INVALID_STATE_CODE
+        fi
+        VISUAL="$EDITOR"
+    fi
+
+
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
-    die_if_variable_name_not_set "EDITOR"
-    die_if_command_invalid "${EDITOR%% *}" "EDITOR"  # check only first word of variable
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
 
@@ -253,7 +263,7 @@ cmd_edit() {
     fi
 
     echo "$1" > "$LAST_EDIT_NOTE"
-    $EDITOR "$PREFIX/$1"
+    $VISUAL "$PREFIX/$1"
 
     if [ -e "$PREFIX/$1" ]; then
         if $_new_note_flag; then
@@ -340,17 +350,18 @@ cmd_list() {
 cmd_show() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    die_if_variable_name_not_set "PAGER"
+
+
+    if ! _is_variable_set "NOTEPAGER" || ! _is_first_command_in_variable_are_program "$NOTEPAGER"; then
+        if ! _is_variable_set "PAGER" || ! _is_first_command_in_variable_are_program "$PAGER"; then
+            die "PAGER ($PAGER) is invalid" $INVALID_STATE_CODE
+        fi
+        NOTEPAGER="$PAGER"
+    fi
 
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
 
-    if _is_variable_set "NOTEPAGER"; then
-        die_if_command_invalid "${NOTEPAGER%% *}" "NOTEPAGER"
-        $NOTEPAGER "$PREFIX/$1"
-    else
-        die_if_command_invalid "${PAGER%% *}" "PAGER"
-        $PAGER "$PREFIX/$1"
-    fi
+    $NOTEPAGER "$PREFIX/$1"
 
     exit 0
 }
@@ -486,8 +497,8 @@ __error_if_storage_not_initialized() {
     fi
 }
 
-__error_if_invalid_EDITOR_variable() {
-    if _is_variable_set "EDITOR" && _is_depends_installed "$EDITOR"; then
+__error_if_invalid_VISUAL_variable() {
+    if _is_variable_set "VISUAL" && _is_depends_installed "$VISUAL"; then
         echo -e "$OK_MESSAGE"
     else
         echo -e "$ERROR_MESSAGE"
@@ -513,7 +524,7 @@ __warn_if_depends_not_installed() {
 cmd_checkhealth() {
     echo -e "Is note storage initialized?... $(__error_if_storage_not_initialized)"
 
-    echo -e "Is variable EDITOR valid?... $(__error_if_invalid_EDITOR_variable)"
+    echo -e "Is variable VISUAL valid?... $(__error_if_invalid_VISUAL_variable)"
 
     echo -e "Is dependencies installed?..."
     echo -e "\tgit $(__error_if_depends_not_installed git)"
@@ -541,14 +552,14 @@ cmd_complete_files() {
 
 complete_commands() {
     echo "init:Initialize new note storage in ~/.notes
-edit:Creates or edit existing note with \$EDITOR
-e:Creates or edit existing note with \$EDITOR (alias)
+edit:Creates or edit existing note with \$VISUAL
+e:Creates or edit existing note with \$VISUAL (alias)
 today:Creates or edit note with name like daily/06-01-24.md
 last:edit opened note
-fedit:Find note by fzf and edit with \$EDITOR
-fe:Find note by fzf and edit with \$EDITOR (alias)
-fgrep:Find note by content with fzf and edit with \$EDITOR
-fg:Find note by content with fzf and edit with \$EDITOR (alias)
+fedit:Find note by fzf and edit with \$VISUAL
+fe:Find note by fzf and edit with \$VISUAL (alias)
+fgrep:Find note by content with fzf and edit with \$VISUAL
+fg:Find note by content with fzf and edit with \$VISUAL (alias)
 show:Render note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
 cat:Render note in terminal by \$PAGER (alias)
 rm:Remove note

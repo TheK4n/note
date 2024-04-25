@@ -27,11 +27,11 @@ echo ">>> $0 >>> Test removing not empty dir"
 
 
 echo ">>> $0 >>> Test writing blank note with path not creating subdir"
-EDITOR=true "$script" edit "$subdir/test.md" 1>/dev/null
+VISUAL=true "$script" edit "$subdir/test.md" 1>/dev/null
 [ ! -e "$storage/$subdir" ]
 
 
 echo ">>> $0 >>> Test writing blank note with path in non empty subdir not deleting subdir"
 echo "." | "$script" edit "$subdir/test.md" 1>/dev/null
-EDITOR=true "$script" edit "$subdir/test2.md" 1>/dev/null
+VISUAL=true "$script" edit "$subdir/test2.md" 1>/dev/null
 [ -d "$storage/$subdir" ]

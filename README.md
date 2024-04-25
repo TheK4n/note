@@ -26,7 +26,7 @@ Simple notes storage mechanism
 * FZF Integration
 * Friendly zsh and bash completions
 * Saving all notes changes with git
-* It respects widely used environment variables such as `EDITOR` and `PAGER`
+* It respects widely used environment variables such as `VISUAL` and `PAGER`
 
 
 > [!NOTE]
@@ -69,7 +69,7 @@ make test
 ## Usage
 ```bash
 export PAGER=less
-export EDITOR=nvim
+export VISUAL=nvim
 note init -p ~/.notes -r ssh://remote/home/user/.notes-storage
 note edit someNote.md
 note show someNote.md

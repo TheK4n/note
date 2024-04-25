@@ -2,7 +2,7 @@
 set -ue
 
 
-export EDITOR=tee
+export VISUAL=tee
 export PAGER=cat
 export NOTEPAGER=cat
 

@@ -18,7 +18,7 @@ Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pull
 .PP
 \fBedit|e (PATH_TO_NOTE)\fR
 .RS 4
-Creates or edit existing note with $EDITOR, after save changes
+Creates or edit existing note with $VISUAL, after save changes
 .RE
 .PP
 \fBtoday\fR
@@ -33,12 +33,12 @@ Edit last opened note
 .PP
 \fBfedit|fe\fR
 .RS 4
-Find note by fzf and edit with $EDITOR
+Find note by fzf and edit with $VISUAL
 .RE
 .PP
 \fBfgrep|fg\fR
 .RS 4
-Find note by content with fzf and edit with $EDITOR
+Find note by content with fzf and edit with $VISUAL
 .RE
 .PP
 \fBsync\fR
@@ -140,17 +140,22 @@ python-grip, bat
 4   Invalid state (etc. not initialized, ...)
 
 .SH ENVIRONMENT
-.B EDITOR
+.B VISUAL
 The name of the editor
 .PP
+.B EDITOR
+Alternative editor. Used if
+.BR VISUAL
+not defined
+.PP
 .B NOTEPAGER
-Used for
+Previewer for notes. Used for
 .BR note
 .BR show
 command
 .PP
 .B PAGER
-Used for
+Alternative previewer for notes. Used for
 .BR note
 .BR show
 command if
