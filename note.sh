@@ -410,7 +410,7 @@ cmd_rename() {
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
     test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
-    test -e "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
+    test -f "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
 
     _DIRNAME="$(dirname "$2")"
 
