@@ -557,7 +557,7 @@ complete_commands() {
 edit:Creates or edit existing note with \$VISUAL
 e:Creates or edit existing note with \$VISUAL (alias)
 today:Creates or edit note with name like daily/06-01-24.md
-last:edit opened note
+last:edit last opened note
 fedit:Find note by fzf and edit with \$VISUAL
 fe:Find note by fzf and edit with \$VISUAL (alias)
 fgrep:Find note by content with fzf and edit with \$VISUAL
