@@ -213,20 +213,8 @@ _is_variable_set() {
     [[ -v "$1" ]]
 }
 
-die_if_variable_name_not_set() {
-    if ! _is_variable_set "$1"; then
-        die "Variable '$1' not defined" $INVALID_STATE_CODE
-    fi
-}
-
 _is_first_command_in_variable_are_program() {
     command -v "${1%% *}" &>/dev/null
-}
-
-die_if_command_invalid() {
-    if ! _is_first_command_in_variable_are_program "$1"; then
-        die "$1 is invalid" $INVALID_STATE_CODE
-    fi
 }
 
 cmd_edit() {
