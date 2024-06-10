@@ -7,11 +7,12 @@ shopt -s nullglob
 
 : "${XDG_DATA_HOME:=$HOME/.local/share}"
 readonly CONFIGFILE="$XDG_DATA_HOME/note/notes-storage-path"
+
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
-: "${XDG_RUNTIME_DIR:=$HOME/.local/state}"
-readonly LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
-readonly LAST_EDIT_NOTE="$XDG_RUNTIME_DIR/note/last"
+readonly RUNTIME_DIR="$HOME/.local/state"
+readonly LOCKFILE="$RUNTIME_DIR/note/lock"
+readonly LAST_EDIT_NOTE="$RUNTIME_DIR/note/last"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
