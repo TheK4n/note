@@ -9,9 +9,9 @@ shopt -s nullglob
 readonly CONFIGFILE="$XDG_DATA_HOME/note/notes-storage-path"
 readonly DEFAULT_PREFIX="$HOME/.notes"
 
-: "${XDG_RUNTIME_DIR:=$HOME/.local/state}"
-readonly LOCKFILE="$XDG_RUNTIME_DIR/note/lock"
-readonly LAST_EDIT_NOTE="$XDG_RUNTIME_DIR/note/last"
+readonly RUNTIME_DIR="$HOME/.local/state"
+readonly LOCKFILE="$RUNTIME_DIR/note/lock"
+readonly LAST_EDIT_NOTE="$RUNTIME_DIR/note/last"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
@@ -34,14 +34,16 @@ readonly WARN_MESSAGE="${YELLOW}WARN${NOCOLOR}"
 readonly ERROR_MESSAGE="${RED}ERROR${NOCOLOR}"
 
 
-readonly INVALID_ARG_CODE=2
-readonly INVALID_OPT_CODE=3
-readonly INVALID_STATE_CODE=4
+readonly EXIT_SUCCESS=0
+readonly EXIT_FAILURE=1
+readonly EXIT_INVALID_ARGUMENT=2
+readonly EXIT_INVALID_OPTION=3
+readonly EXIT_INVALID_STATE=4
 
 
 die() {
     echo "$PROGRAM: Error: $1" 1>&2
-    exit $2
+    exit "$2"
 }
 
 
@@ -95,12 +97,12 @@ cmd_usage() {
         Prints to stdout current notes storage
     $PROGRAM export
         Export notes in tar.gz format, redirect output in stdout (use $PROGRAM export > notes.tar.gz)" >&2
-    exit $1
+    exit "$1"
 }
 
 cmd_version() {
     echo "%%VERSION%%"
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 _ask_user() {
@@ -122,7 +124,7 @@ _is_yes() {
 
 _validate_arg() {
 	if [[ $2 == -* ]]; then
-		die "Option $1 requires an argument" $INVALID_ARG_CODE
+		die "Option $1 requires an argument" $EXIT_INVALID_ARGUMENT
 	fi
 }
 
@@ -142,10 +144,10 @@ cmd_init() {
                 remote_storage="$OPTARG"
             ;;
             :)
-                die "Option -$OPTARG requires an argument" $INVALID_ARG_CODE
+                die "Option -$OPTARG requires an argument" $EXIT_INVALID_ARGUMENT
             ;;
             \?)
-                die "Invalid option: -$OPTARG" $INVALID_OPT_CODE
+                die "Invalid option: -$OPTARG" $EXIT_INVALID_OPTION
             ;;
         esac
     done
@@ -161,7 +163,7 @@ cmd_init() {
         git -C "$PREFIX" remote add "$ORIGIN" "$remote_storage"
         cmd_sync
     fi
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 __is_note_storage_initialized() {
@@ -175,12 +177,12 @@ __is_note_storage_initialized() {
 
 die_if_not_initialized() {
     if ! __is_note_storage_initialized; then
-        die "You need to initialize: $PROGRAM init [-p PATH]" $INVALID_STATE_CODE
+        die "You need to initialize: $PROGRAM init [-p PATH]" $EXIT_INVALID_STATE
     fi
 }
 
 die_if_name_not_entered() {
-    test -n "$1" || die "Note name wasn\`t entered" $INVALID_ARG_CODE
+    test -n "$1" || die "Note name wasn\`t entered" $EXIT_INVALID_ARGUMENT
 }
 
 cmd_git() {
@@ -197,11 +199,11 @@ git_commit() {
 
 die_if_invalid_path() {
     if [[ "$1" =~ ".." ]]; then
-        die "Path can\`t contains '..'" $INVALID_ARG_CODE
+        die "Path can\`t contains '..'" $EXIT_INVALID_ARGUMENT
     fi
 
     if [[ "$1" = /* ]]; then
-        die "Path can\`t start from '/'" $INVALID_ARG_CODE
+        die "Path can\`t start from '/'" $EXIT_INVALID_ARGUMENT
     fi
 }
 
@@ -210,7 +212,7 @@ _is_depends_installed() {
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || die "'$1' not installed. Use '$PROGRAM checkhealth'." $INVALID_STATE_CODE
+    _is_depends_installed "$1" || die "'$1' not installed. Use '$PROGRAM checkhealth'." $EXIT_INVALID_STATE
 }
 
 _is_variable_set() {
@@ -224,7 +226,7 @@ _is_first_command_in_variable_are_program() {
 cmd_edit() {
     if ! _is_variable_set "VISUAL" || ! _is_first_command_in_variable_are_program "$VISUAL"; then
         if ! _is_variable_set "EDITOR" || ! _is_first_command_in_variable_are_program "$EDITOR"; then
-            die "EDITOR ($EDITOR) is invalid" $INVALID_STATE_CODE
+            die "EDITOR ($EDITOR) is invalid" $EXIT_INVALID_STATE
         fi
         VISUAL="$EDITOR"
     fi
@@ -233,7 +235,7 @@ cmd_edit() {
     die_if_name_not_entered "$1"
     die_if_invalid_path "$1"
 
-    test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $INVALID_ARG_CODE
+    test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $EXIT_INVALID_ARGUMENT
 
     local _new_note_flag
     if [ ! -e "$PREFIX/$1" ]; then
@@ -285,7 +287,7 @@ cmd_today() {
 
 cmd_last() {
     if [ ! -e "$LAST_EDIT_NOTE" ] || [ -z "$(cat "$LAST_EDIT_NOTE")"  ]; then
-        die "No last note" $INVALID_STATE_CODE
+        die "No last note" $EXIT_INVALID_STATE
     fi
     cmd_edit "$(cat "$LAST_EDIT_NOTE")"
 }
@@ -346,16 +348,16 @@ cmd_show() {
 
     if ! _is_variable_set "NOTEPAGER" || ! _is_first_command_in_variable_are_program "$NOTEPAGER"; then
         if ! _is_variable_set "PAGER" || ! _is_first_command_in_variable_are_program "$PAGER"; then
-            die "PAGER ($PAGER) is invalid" $INVALID_STATE_CODE
+            die "PAGER ($PAGER) is invalid" $EXIT_INVALID_STATE
         fi
         NOTEPAGER="$PAGER"
     fi
 
-    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
 
     $NOTEPAGER "$PREFIX/$1"
 
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_ls() {
@@ -365,7 +367,7 @@ cmd_ls() {
     else
         cmd_list "$@"
     fi
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_mkdir() {
@@ -382,17 +384,17 @@ cmd_tree() {
     die_if_invalid_path "$path"
     die_if_depends_not_installed "tree"
 
-    test -d "$PREFIX/$path" || die "'$path' not a directory" $INVALID_ARG_CODE
+    test -d "$PREFIX/$path" || die "'$path' not a directory" $EXIT_INVALID_ARGUMENT
     cd "$PREFIX"
 
     tree -N -C --noreport "$path"
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_delete() {
     die_if_invalid_path "$1"
     die_if_name_not_entered "$1"
-    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
     cmd_git rm -r "$1"
     git_commit "Removed note $1"
 }
@@ -402,8 +404,8 @@ cmd_rename() {
     die_if_invalid_path "$2"
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
-    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $INVALID_ARG_CODE
-    test -f "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
+    test -f "$PREFIX/$2" && die "Note '$2' already exists" $EXIT_INVALID_ARGUMENT
 
     local _dirname
     _dirname="$(dirname "$2")"
@@ -432,8 +434,8 @@ cmd_ln() {
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
 
-    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $INVALID_ARG_CODE
-    test -f "$PREFIX/$2" && die "Note or directory '$2' already exists" $INVALID_ARG_CODE
+    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
+    test -f "$PREFIX/$2" && die "Note or directory '$2' already exists" $EXIT_INVALID_ARGUMENT
 
     ln -s "$PREFIX/$1" "$PREFIX/$2"
     git_add "$2"
@@ -443,12 +445,12 @@ cmd_ln() {
 cmd_find() {
     die_if_depends_not_installed "find"
     find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o -iname "$1" -print | _exclude_prefix
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_grep() {
     grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_export() {
@@ -538,7 +540,7 @@ cmd_checkhealth() {
     echo -e "\t$RG $(__warn_if_depends_not_installed $RG)"
     echo -e "\ttree $(__warn_if_depends_not_installed tree)"
     echo -e "\tfind $(__warn_if_depends_not_installed find)"
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_complete_notes() {
@@ -599,7 +601,7 @@ cmd_complete_zsh_commands() {
 
 cmd_get_storage() {
     echo "$PREFIX"
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 cmd_complete() {
@@ -610,12 +612,12 @@ cmd_complete() {
         bash) shift;                cmd_complete_bash_commands  "$@" ;;
         zsh) shift;                 cmd_complete_zsh_commands   "$@" ;;
     esac
-    exit 0
+    exit $EXIT_SUCCESS
 }
 
 _die_if_locked() {
     if [ -e "$LOCKFILE" ]; then
-        die "Seems another process is running. If not, just delete $LOCKFILE" $INVALID_STATE_CODE
+        die "Seems another process is running. If not, just delete $LOCKFILE" $EXIT_INVALID_STATE
     fi
 }
 
@@ -633,14 +635,14 @@ _is_repository_not_clean() {
 }
 
 if [[ ! -v 1 ]]; then
-    die "Type '$PROGRAM help' for usage" 1
+    die "Type '$PROGRAM help' for usage" $EXIT_FAILURE
 fi
 
 case "$1" in
-    init) shift;            cmd_init         "$@" ;;
-    help|--help|-h) shift;  cmd_usage 0      "$@" ;;
-    version|-V) shift;      cmd_version      "$@" ;;
-    checkhealth) shift;     cmd_checkhealth  "$@" ;;
+    init) shift;            cmd_init                 "$@" ;;
+    help|--help|-h) shift;  cmd_usage $EXIT_SUCCESS  "$@" ;;
+    version|-V) shift;      cmd_version              "$@" ;;
+    checkhealth) shift;     cmd_checkhealth          "$@" ;;
 esac
 
 
@@ -686,6 +688,6 @@ case "$1" in
     sync) shift;      cmd_sync     "$@" ;;
     git) shift;       cmd_git      "$@" ;;
 
-    *)                cmd_usage 1  "$@" ;;
+    *)                cmd_usage $EXIT_FAILURE "$@" ;;
 esac
-exit 0
+exit $EXIT_SUCCESS
