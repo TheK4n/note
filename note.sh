@@ -69,6 +69,10 @@ cmd_usage() {
         Removes note
     $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
         Rename note
+    $PROGRAM draft (PATH_TO_NOTE)
+        Moves note to draft directory
+    $PROGRAM undraft (PATH_TO_NOTE)
+        Moves note from draft directory
     $PROGRAM ln (PATH_TO_NOTE) (link-name)
         Create symbolic link
     $PROGRAM ls|list [PATH_TO_NOTE]...
@@ -242,11 +246,11 @@ cmd_edit() {
     local _new_dir_flag
     _new_dir_flag=false
 
-    local _DIRNAME
-    _DIRNAME="$(dirname "$1")"
+    local _dirname
+    _dirname="$(dirname "$1")"
 
-    if [ ! -d "$PREFIX/$_DIRNAME" ]; then
-        mkdir -p "$PREFIX/$_DIRNAME"
+    if [ ! -d "$PREFIX/$_dirname" ]; then
+        mkdir -p "$PREFIX/$_dirname"
         _new_dir_flag=true
     fi
 
@@ -270,7 +274,7 @@ cmd_edit() {
         if $_new_dir_flag; then
             # removes only empty dirs recursively
             cd "$PREFIX"
-            rmdir -p "$_DIRNAME"
+            rmdir -p "$_dirname"
         fi
     fi
 }
@@ -332,7 +336,7 @@ cmd_fg() {
 cmd_list() {
     die_if_invalid_path "$*"
     cd "$PREFIX"
-    ls --color=always "$@"
+    ls "${LS_OPTIONS:-"--color=auto"}" "$@"
 }
 
 cmd_show() {
@@ -399,18 +403,27 @@ cmd_rename() {
     die_if_name_not_entered "$1"
     die_if_name_not_entered "$2"
     test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $INVALID_ARG_CODE
-    test -f "$PREFIX/$2" && die "Note or directory '$2' already exists" $INVALID_ARG_CODE
+    test -f "$PREFIX/$2" && die "Note '$2' already exists" $INVALID_ARG_CODE
 
-    _DIRNAME="$(dirname "$2")"
+    local _dirname
+    _dirname="$(dirname "$2")"
 
-    if [ ! -d "$PREFIX/$_DIRNAME" ]; then
-        mkdir "$PREFIX/$_DIRNAME"
+    if [ ! -d "$PREFIX/$_dirname" ]; then
+        mkdir -p "$PREFIX/$_dirname"
     fi
 
     mv "$PREFIX/$1" "$PREFIX/$2"
     git_add "$1"
     git_add "$2"
     git_commit "Note $1 renamed to $2"
+}
+
+cmd_draft() {
+    cmd_rename "$1" "draft/${1}"
+}
+
+cmd_undraft() {
+    cmd_rename "draft/${1}" "$1"
 }
 
 cmd_ln() {
@@ -554,6 +567,8 @@ show:Render note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
 cat:Render note in terminal by \$PAGER (alias)
 rm:Remove note
 mv:Rename note
+draft:Moves note to draft directory
+undraft:Moves note from draft directory
 ln:Create symbolic link
 list:List notes
 ls:List notes (alias)
@@ -656,19 +671,21 @@ trap _release_lock EXIT
 
 
 case "$1" in
-    edit|e) shift;    cmd_edit    "$@" ;;
-    today) shift;     cmd_today   "$@" ;;
-    fedit|fe) shift;  cmd_fedit   "$@" ;;
-    fgrep|fg) shift;  cmd_fg      "$@" ;;
-    last) shift;      cmd_last    "$@" ;;
-    rm) shift;        cmd_delete  "$@" ;;
-    mv) shift;        cmd_rename  "$@" ;;
-    ln) shift;        cmd_ln      "$@" ;;
-    mkdir) shift;     cmd_mkdir   "$@" ;;
-    export) shift;    cmd_export  "$@" ;;
-    sync) shift;      cmd_sync    "$@" ;;
-    git) shift;       cmd_git     "$@" ;;
+    edit|e) shift;    cmd_edit     "$@" ;;
+    today) shift;     cmd_today    "$@" ;;
+    fedit|fe) shift;  cmd_fedit    "$@" ;;
+    fgrep|fg) shift;  cmd_fg       "$@" ;;
+    last) shift;      cmd_last     "$@" ;;
+    rm) shift;        cmd_delete   "$@" ;;
+    mv) shift;        cmd_rename   "$@" ;;
+    draft) shift;     cmd_draft    "$@" ;;
+    undraft) shift;   cmd_undraft  "$@" ;;
+    ln) shift;        cmd_ln       "$@" ;;
+    mkdir) shift;     cmd_mkdir    "$@" ;;
+    export) shift;    cmd_export   "$@" ;;
+    sync) shift;      cmd_sync     "$@" ;;
+    git) shift;       cmd_git      "$@" ;;
 
-    *)                cmd_usage 1 "$@" ;;
+    *)                cmd_usage 1  "$@" ;;
 esac
 exit 0
