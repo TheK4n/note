@@ -17,4 +17,4 @@ echo "note2" | "$script" edit note2.md 1>/dev/null
 "$script" edit somenote.md 1>/dev/null &
 sleep 1
 "$script" show note2.md 1>/dev/null
-kill %1
+kill %1 || true

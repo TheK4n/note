@@ -5,13 +5,13 @@
 set -ueo pipefail
 shopt -s nullglob
 
-: "${XDG_DATA_HOME:=$HOME/.local/share}"
-readonly CONFIGFILE="$XDG_DATA_HOME/note/notes-storage-path"
-readonly DEFAULT_PREFIX="$HOME/.notes"
+: "${XDG_DATA_HOME:="${HOME}/.local/share"}"
+readonly CONFIGFILE="${XDG_DATA_HOME}/note/notes-storage-path"
+readonly DEFAULT_PREFIX="${HOME}/.notes"
 
-readonly RUNTIME_DIR="$HOME/.local/state"
-readonly LOCKFILE="$RUNTIME_DIR/note/lock"
-readonly LAST_EDIT_NOTE="$RUNTIME_DIR/note/last"
+readonly RUNTIME_DIR="${HOME}/.local/state"
+readonly LOCKFILE="${RUNTIME_DIR}/note/lock"
+readonly LAST_EDIT_NOTE="${RUNTIME_DIR}/note/last"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
@@ -42,61 +42,61 @@ readonly EXIT_INVALID_STATE=4
 
 
 die() {
-    echo "$PROGRAM: Error: $1" 1>&2
+    echo "${PROGRAM}: Error: $1" 1>&2
     exit "$2"
 }
 
 
 cmd_usage() {
     echo "Usage:
-    $PROGRAM help
+    ${PROGRAM} help
         Show this text
-    $PROGRAM init [-p PATH] [-r REMOTE]
+    ${PROGRAM} init [-p PATH] [-r REMOTE]
         Initialize new note storage in PATH(default=~/.notes), if REMOTE specified, pulls notes from there
-    $PROGRAM version
+    ${PROGRAM} version
         Print version and exit
-    $PROGRAM edit|e (PATH_TO_NOTE)
+    ${PROGRAM} edit|e (PATH_TO_NOTE)
         Creates or edit existing note with \$VISUAL, after save changes by git
-    $PROGRAM today
+    ${PROGRAM} today
         Creates or edit note with name like daily/06-01-24.md
-    $PROGRAM last
+    ${PROGRAM} last
         Edit last opened note
-    $PROGRAM fedit|fe
+    ${PROGRAM} fedit|fe
         Find note by fzf and edit with \$VISUAL
-    $PROGRAM fgrep|fg
+    ${PROGRAM} fgrep|fg
         Find note by content with fzf and edit with \$VISUAL
-    $PROGRAM show|cat (PATH_TO_NOTE)
+    ${PROGRAM} show|cat (PATH_TO_NOTE)
         Show note in terminal by \$NOTEPAGER if defined, otherwice \$PAGER
-    $PROGRAM rm (PATH_TO_NOTE)
+    ${PROGRAM} rm (PATH_TO_NOTE)
         Removes note
-    $PROGRAM mv (PATH_TO_NOTE) (new-note-name)
+    ${PROGRAM} mv (PATH_TO_NOTE) (new-note-name)
         Rename note
-    $PROGRAM draft (PATH_TO_NOTE)
+    ${PROGRAM} draft (PATH_TO_NOTE)
         Moves note to draft directory
-    $PROGRAM undraft (PATH_TO_NOTE)
+    ${PROGRAM} undraft (PATH_TO_NOTE)
         Moves note from draft directory
-    $PROGRAM ln (PATH_TO_NOTE) (link-name)
+    ${PROGRAM} ln (PATH_TO_NOTE) (link-name)
         Create symbolic link
-    $PROGRAM ls|list [PATH_TO_NOTE]...
+    ${PROGRAM} ls|list [PATH_TO_NOTE]...
         List notes
-    $PROGRAM mkdir (PATH_TO_DIR)
+    ${PROGRAM} mkdir (PATH_TO_DIR)
         Creates new directory and subdirs
-    $PROGRAM tree [PATH_TO_SUBDIR]
+    ${PROGRAM} tree [PATH_TO_SUBDIR]
         Show notes in storage or subdir
-    $PROGRAM find (NOTE_NAME)
+    ${PROGRAM} find (NOTE_NAME)
         Find note with name
-    $PROGRAM grep (PATTERN)
+    ${PROGRAM} grep (PATTERN)
         Find notes by pattern
-    $PROGRAM checkhealth
+    ${PROGRAM} checkhealth
         Check installed dependencies and initialized storage
-    $PROGRAM sync
+    ${PROGRAM} sync
         Pull changes from remote note storage(in case of conflict, accepts yours changes)
-    $PROGRAM git ...
+    ${PROGRAM} git ...
         Proxy commands to git
-    $PROGRAM --prefix
+    ${PROGRAM} --prefix
         Prints to stdout current notes storage
-    $PROGRAM export
-        Export notes in tar.gz format, redirect output in stdout (use $PROGRAM export > notes.tar.gz)" >&2
+    ${PROGRAM} export
+        Export notes in tar.gz format, redirect output in stdout (use ${PROGRAM} export > notes.tar.gz)" >&2
     exit "$1"
 }
 
@@ -131,7 +131,7 @@ _validate_arg() {
 cmd_init() {
     local remote_storage
     remote_storage=""
-    PREFIX="$DEFAULT_PREFIX"
+    PREFIX="${DEFAULT_PREFIX}"
 
     while getopts ":p:r:" opt; do
         case "$opt" in
@@ -177,7 +177,7 @@ __is_note_storage_initialized() {
 
 die_if_not_initialized() {
     if ! __is_note_storage_initialized; then
-        die "You need to initialize: $PROGRAM init [-p PATH]" $EXIT_INVALID_STATE
+        die "You need to initialize: ${PROGRAM} init [-p PATH]" $EXIT_INVALID_STATE
     fi
 }
 
@@ -212,7 +212,7 @@ _is_depends_installed() {
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || die "'$1' not installed. Use '$PROGRAM checkhealth'." $EXIT_INVALID_STATE
+    _is_depends_installed "$1" || die "'$1' not installed. Use '${PROGRAM} checkhealth'." $EXIT_INVALID_STATE
 }
 
 _is_variable_set() {
@@ -635,7 +635,7 @@ _is_repository_not_clean() {
 }
 
 if [[ ! -v 1 ]]; then
-    die "Type '$PROGRAM help' for usage" $EXIT_FAILURE
+    die "Type '${PROGRAM} help' for usage" $EXIT_FAILURE
 fi
 
 case "$1" in
@@ -651,7 +651,7 @@ PREFIX="$(cat "$CONFIGFILE")"
 cd "$PREFIX"
 
 if _is_repository_not_clean; then
-    echo "$PROGRAM: WARNING: repository not clean!" 1>&2
+    echo "${PROGRAM}: WARNING: repository not clean!" 1>&2
 fi
 
 
