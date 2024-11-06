@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Copyright © 2022-2024 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
 
 
-set -ueo pipefail
-shopt -s nullglob
+set -ue
+
 
 : "${XDG_DATA_HOME:="${HOME}/.local/share"}"
 readonly CONFIGFILE="${XDG_DATA_HOME}/note/notes-storage-path"
@@ -16,7 +16,6 @@ readonly LAST_EDIT_NOTE="${RUNTIME_DIR}/note/last"
 readonly ORIGIN="origin"
 readonly BRANCH="master"
 
-declare PROGRAM
 PROGRAM="$(basename "$0")"
 readonly PROGRAM
 
@@ -106,10 +105,11 @@ cmd_version() {
 }
 
 _ask_user() {
-    local answer
-    local question="$1"
-    local default_value="$2"
-    read -rp "$question (default=$default_value): " answer
+    question="$1"
+    default_value="$2"
+
+    printf '%s (default=%s): ' "${question}" "${default_value}"
+    read -r answer
 
     if [ -z "$answer" ]; then
         answer="$default_value"
@@ -119,35 +119,34 @@ _ask_user() {
 }
 
 _is_yes() {
-    [[ "$1" == [Yy]* ]]
+    [ "${1}" = y ]
 }
 
 _validate_arg() {
-	if [[ $2 == -* ]]; then
+	if [ "${1}" == -* ]; then
 		die "Option $1 requires an argument" $EXIT_INVALID_ARGUMENT
 	fi
 }
 
 cmd_init() {
-    local remote_storage
     remote_storage=""
     PREFIX="${DEFAULT_PREFIX}"
 
     while getopts ":p:r:" opt; do
-        case "$opt" in
+        case "${opt}" in
             p)
-                _validate_arg "-$opt" "$OPTARG"
-                PREFIX="$(realpath -m "$OPTARG")"
+                _validate_arg "-${opt}" "${OPTARG}"
+                PREFIX="$(realpath -m "${OPTARG}")"
             ;;
             r)
-                _validate_arg "-$opt" "$OPTARG"
-                remote_storage="$OPTARG"
+                _validate_arg "-${opt}" "${OPTARG}"
+                remote_storage="${OPTARG}"
             ;;
             :)
-                die "Option -$OPTARG requires an argument" $EXIT_INVALID_ARGUMENT
+                die "Option -${OPTARG} requires an argument" $EXIT_INVALID_ARGUMENT
             ;;
             \?)
-                die "Invalid option: -$OPTARG" $EXIT_INVALID_OPTION
+                die "Invalid option: -${OPTARG}" $EXIT_INVALID_OPTION
             ;;
         esac
     done
@@ -167,12 +166,11 @@ cmd_init() {
 }
 
 __is_note_storage_initialized() {
-    [ -r "$CONFIGFILE" ]
-    local prefix
-    prefix="$(cat "$CONFIGFILE")"
-    [ -d "$prefix" ]
-    [ -w "$prefix" ]
-    [ -w "$prefix/.git" ]
+    [ -r "${CONFIGFILE}" ]
+    prefix="$(cat "${CONFIGFILE}")"
+    [ -d "${prefix}" ]
+    [ -w "${prefix}" ]
+    [ -w "${prefix}/.git" ]
 }
 
 die_if_not_initialized() {
@@ -198,17 +196,17 @@ git_commit() {
 }
 
 die_if_invalid_path() {
-    if [[ "$1" =~ ".." ]]; then
+    if [ "$1" =~ ".." ]; then
         die "Path can\`t contains '..'" $EXIT_INVALID_ARGUMENT
     fi
 
-    if [[ "$1" = /* ]]; then
+    if [ "$1" = /* ]; then
         die "Path can\`t start from '/'" $EXIT_INVALID_ARGUMENT
     fi
 }
 
 _is_depends_installed() {
-    command -v "$1" &>/dev/null
+    command -v "$1" 2>/dev/null
 }
 
 die_if_depends_not_installed() {
@@ -216,11 +214,11 @@ die_if_depends_not_installed() {
 }
 
 _is_variable_set() {
-    [[ -v "$1" ]]
+    [ -n "${1+x}" ]
 }
 
 _is_first_command_in_variable_are_program() {
-    command -v "${1%% *}" &>/dev/null
+    command -v "${1%% *}" 1>/dev/null
 }
 
 cmd_edit() {
@@ -237,7 +235,6 @@ cmd_edit() {
 
     test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $EXIT_INVALID_ARGUMENT
 
-    local _new_note_flag
     if [ ! -e "$PREFIX/$1" ]; then
         echo "Creating new note '$1'"
         _new_note_flag=true
@@ -245,10 +242,8 @@ cmd_edit() {
         _new_note_flag=false
     fi
 
-    local _new_dir_flag
     _new_dir_flag=false
 
-    local _dirname
     _dirname="$(dirname "$1")"
 
     if [ ! -d "$PREFIX/$_dirname" ]; then
@@ -262,11 +257,11 @@ cmd_edit() {
     if [ -e "$PREFIX/$1" ]; then
         if $_new_note_flag; then
             git_add "$1"
-            git_commit "Created new note $1 by $HOSTNAME"
+            git_commit "Created new note $1 by ${HOST}"
             echo "Note '$1' has been created"
         elif [ -n "$(cmd_git diff "$1")" ]; then
             git_add "$1"
-            git_commit "Edited note $1 by $HOSTNAME"
+            git_commit "Edited note $1 by ${HOST}"
             echo "Note '$1' has been edited"
         else
             echo "Note '$1' wasn\`t edited"
@@ -298,10 +293,11 @@ cmd_fedit() {
 
     INITIAL_QUERY="${1:-}"
 
-    export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
-        --no-multi \
-        --no-sort \
-        --preview-window right:60% \
+    export FZF_DEFAULT_OPTS="\
+        ${FZF_DEFAULT_OPTS:-}
+        --no-multi
+        --no-sort
+        --preview-window right:60%
         --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
 
     cmd_edit "$(cmd_complete_notes | $FZF --query "$INITIAL_QUERY")"
@@ -314,10 +310,11 @@ cmd_fg() {
 
     INITIAL_QUERY="${1:-}"
 
-    export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
-        --no-multi \
-        --no-sort \
-        --preview-window right:40% \
+    export FZF_DEFAULT_OPTS="\
+        ${FZF_DEFAULT_OPTS:-}
+        --no-multi
+        --no-sort
+        --preview-window right:40%
         --preview=\"rgout={}; \
         lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
         $FZF_PAGER --plain --wrap=never --color=always \
@@ -327,7 +324,6 @@ cmd_fg() {
         $PREFIX/\${rgout%%:*}\""
 
     RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
-    local choosed_note
     choosed_note="$(FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
            $FZF --bind "change:reload:$RG_PREFIX {q} || true" \
            --ansi --disabled --query "$INITIAL_QUERY")"
@@ -378,7 +374,6 @@ cmd_mkdir() {
 }
 
 cmd_tree() {
-    local path
     path="${1:-.}"
 
     die_if_invalid_path "$path"
@@ -407,7 +402,6 @@ cmd_rename() {
     test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
     test -f "$PREFIX/$2" && die "Note '$2' already exists" $EXIT_INVALID_ARGUMENT
 
-    local _dirname
     _dirname="$(dirname "$2")"
 
     if [ ! -d "$PREFIX/$_dirname" ]; then
@@ -458,16 +452,16 @@ cmd_export() {
 }
 
 _highlight_text() {
-    local nocolor=$'\e[0m'
+    nocolor=$'\e[0m'
     sed -e "s/${1}/${2}${1}${nocolor}/g"
 }
 
 cmd_sync() {
-    local ff="Fast-forward"
-    local merge="Merge"
+    ff="Fast-forward"
+    merge="Merge"
 
-    local red=$'\e[31m'
-    local green=$'\e[32m'
+    red=$'\e[31m'
+    green=$'\e[32m'
 
     output="$(cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit)"
     echo -e "$output" | \
@@ -587,8 +581,7 @@ checkhealth:Check installed dependencies and initialized storage"
 
 
 cmd_complete_bash_commands() {
-    local IFS=$'\n'
-    local cmd
+    IFS=$'\n'
     for cmd in $(complete_commands)
     do
         echo "$cmd" | cut -f1 -d":"
@@ -631,10 +624,10 @@ _release_lock() {
 }
 
 _is_repository_not_clean() {
-    [[ -n "$(cmd_git status -s)" ]]
+    [ -n "$(cmd_git status -s)" ]
 }
 
-if [[ ! -v 1 ]]; then
+if [ -z "${1+x}" ]; then
     die "Type '${PROGRAM} help' for usage" $EXIT_FAILURE
 fi
 
@@ -668,8 +661,7 @@ esac
 
 _die_if_locked
 _set_lock
-trap _release_lock ERR
-trap _release_lock EXIT
+trap _release_lock EXIT INT HUP
 
 
 case "$1" in
