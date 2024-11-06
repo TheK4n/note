@@ -108,7 +108,7 @@ _ask_user() {
     question="${1}"
     default_value="${2}"
 
-    printf '%s (default=%s): ' "${question}" "${default_value}"
+    printf '%s (default=%s): ' "${question}" "${default_value}" 1>&2
     read -r answer
 
     if [ -z "${answer}" ]; then
