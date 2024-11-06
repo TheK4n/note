@@ -49,25 +49,25 @@ Optional dependencies:
 
 
 ### Install from source:
-```bash
+```sh
 git clone https://github.com/thek4n/note.git
 cd note
 make install
 ```
 
 ### Install from [AUR](https://aur.archlinux.org/packages/note-manager) (recommended):
-```bash
+```sh
 yay -S note-manager
 ```
 
 ### Run tests
-```bash
+```sh
 make test
 ```
 
 
 ## Usage
-```bash
+```sh
 export PAGER=less
 export VISUAL=nvim
 note init -p ~/.notes -r ssh://remote/home/user/.notes-storage
@@ -78,7 +78,7 @@ note git push
 
 ---
 
-```bash
+```sh
 note sync  # to automaticly pull and merge remote changes
 ```
 
@@ -90,17 +90,18 @@ note sync  # to automaticly pull and merge remote changes
 ### Other markdown previewers
 
 [Grip](https://github.com/joeyespo/grip)
-```bash
+```sh
 NOTEPAGER="grip -b" note show someNote.md
 ```
 [Glow](https://github.com/charmbracelet/glow)
-```bash
+```sh
 NOTEPAGER="glow" note show someNote.md
 ```
 
 ## Roadmap
 
 * [ ] Graph building based on markdown links
+* [X] ~~Rewrite on posix shell~~
 * [X] ~~Lock-file~~
 * [X] ~~Synchronization~~
 * [X] ~~Search by notes~~

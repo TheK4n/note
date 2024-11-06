@@ -16,7 +16,7 @@ readonly LAST_EDIT_NOTE="${RUNTIME_DIR}/note/last"
 readonly ORIGIN="origin"
 readonly BRANCH="master"
 
-PROGRAM="$(basename "$0")"
+PROGRAM="$(basename "${0}")"
 readonly PROGRAM
 
 readonly FZF="fzf"
@@ -41,8 +41,8 @@ readonly EXIT_INVALID_STATE=4
 
 
 die() {
-    echo "${PROGRAM}: Error: $1" 1>&2
-    exit "$2"
+    echo "${PROGRAM}: Error: ${1}" 1>&2
+    exit "${2}"
 }
 
 
@@ -96,35 +96,39 @@ cmd_usage() {
         Prints to stdout current notes storage
     ${PROGRAM} export
         Export notes in tar.gz format, redirect output in stdout (use ${PROGRAM} export > notes.tar.gz)" >&2
-    exit "$1"
+    exit "${1}"
 }
 
 cmd_version() {
     echo "%%VERSION%%"
-    exit $EXIT_SUCCESS
+    exit "${EXIT_SUCCESS}"
 }
 
 _ask_user() {
-    question="$1"
-    default_value="$2"
+    question="${1}"
+    default_value="${2}"
 
     printf '%s (default=%s): ' "${question}" "${default_value}"
     read -r answer
 
-    if [ -z "$answer" ]; then
-        answer="$default_value"
+    if [ -z "${answer}" ]; then
+        answer="${default_value}"
     fi
 
-    echo "$answer"
+    echo "${answer}"
 }
 
 _is_yes() {
     [ "${1}" = y ]
 }
 
+_string_valid_arg() {
+    echo "${1}" | grep '^-' 1>/dev/null 2>&1
+}
+
 _validate_arg() {
-	if [ "${1}" == -* ]; then
-		die "Option $1 requires an argument" $EXIT_INVALID_ARGUMENT
+	if ! _string_valid_arg "${1}"; then
+		die "Option ${1} requires an argument" "${EXIT_INVALID_ARGUMENT}"
 	fi
 }
 
@@ -143,26 +147,26 @@ cmd_init() {
                 remote_storage="${OPTARG}"
             ;;
             :)
-                die "Option -${OPTARG} requires an argument" $EXIT_INVALID_ARGUMENT
+                die "Option -${OPTARG} requires an argument" "${EXIT_INVALID_ARGUMENT}"
             ;;
             \?)
-                die "Invalid option: -${OPTARG}" $EXIT_INVALID_OPTION
+                die "Invalid option: -${OPTARG}" "${EXIT_INVALID_OPTION}"
             ;;
         esac
     done
 
-    mkdir -p "$(dirname "$CONFIGFILE")"
-    echo "$PREFIX" > "$CONFIGFILE"
+    mkdir -p "$(dirname "${CONFIGFILE}")"
+    echo "${PREFIX}" > "${CONFIGFILE}"
 
-    if [ ! -d "$PREFIX" ]; then
-        mkdir "$PREFIX"
+    if [ ! -d "${PREFIX}" ]; then
+        mkdir "${PREFIX}"
     fi
-    git init -b "$BRANCH" "$PREFIX"
-    if [ -n "$remote_storage" ]; then
-        git -C "$PREFIX" remote add "$ORIGIN" "$remote_storage"
+    git init -b "${BRANCH}" "${PREFIX}"
+    if [ -n "${remote_storage}" ]; then
+        git -C "${PREFIX}" remote add "${ORIGIN}" "${remote_storage}"
         cmd_sync
     fi
-    exit $EXIT_SUCCESS
+    exit "${EXIT_SUCCESS}"
 }
 
 __is_note_storage_initialized() {
@@ -175,68 +179,72 @@ __is_note_storage_initialized() {
 
 die_if_not_initialized() {
     if ! __is_note_storage_initialized; then
-        die "You need to initialize: ${PROGRAM} init [-p PATH]" $EXIT_INVALID_STATE
+        die "You need to initialize: ${PROGRAM} init [-p PATH]" "${EXIT_INVALID_STATE}"
     fi
 }
 
 die_if_name_not_entered() {
-    test -n "$1" || die "Note name wasn\`t entered" $EXIT_INVALID_ARGUMENT
+    test -n "${1}" || die "Note name wasn\`t entered" "${EXIT_INVALID_ARGUMENT}"
 }
 
 cmd_git() {
-    git -C "$PREFIX" "$@"
+    git -C "${PREFIX}" "$@"
 }
 
 git_add() {
-    cmd_git add "$1"
+    cmd_git add "${1}"
 }
 
 git_commit() {
-    cmd_git commit -m "$1" 1>/dev/null
+    cmd_git commit -m "${1}" 1>/dev/null
+}
+
+_string_contain_dotdot() {
+    echo "${1}" | grep '\.\.' 1>/dev/null 2>&1
+}
+
+_string_starts_with_slash() {
+    echo "${1}" | grep '^/' 1>/dev/null 2>&1
 }
 
 die_if_invalid_path() {
-    if [ "$1" =~ ".." ]; then
-        die "Path can\`t contains '..'" $EXIT_INVALID_ARGUMENT
+    if _string_contain_dotdot "${1}"; then
+        die "Path can\`t contains '..'" "${EXIT_INVALID_ARGUMENT}"
     fi
 
-    if [ "$1" = /* ]; then
-        die "Path can\`t start from '/'" $EXIT_INVALID_ARGUMENT
+    if _string_starts_with_slash "${1}"; then
+        die "Path can\`t start from '/'" "${EXIT_INVALID_ARGUMENT}"
     fi
 }
 
 _is_depends_installed() {
-    command -v "$1" 2>/dev/null
+    command -v "${1}" 1>/dev/null 2>&1
 }
 
 die_if_depends_not_installed() {
-    _is_depends_installed "$1" || die "'$1' not installed. Use '${PROGRAM} checkhealth'." $EXIT_INVALID_STATE
-}
-
-_is_variable_set() {
-    [ -n "${1+x}" ]
+    _is_depends_installed "${1}" || die "'${1}' not installed. Use '${PROGRAM} checkhealth'." "${EXIT_INVALID_STATE}"
 }
 
 _is_first_command_in_variable_are_program() {
-    command -v "${1%% *}" 1>/dev/null
+    command -v "${1%% *}" 1>/dev/null 2>&1
 }
 
 cmd_edit() {
-    if ! _is_variable_set "VISUAL" || ! _is_first_command_in_variable_are_program "$VISUAL"; then
-        if ! _is_variable_set "EDITOR" || ! _is_first_command_in_variable_are_program "$EDITOR"; then
-            die "EDITOR ($EDITOR) is invalid" $EXIT_INVALID_STATE
+    if [ -z "${VISUAL+x}" ] || ! _is_first_command_in_variable_are_program "${VISUAL}"; then
+        if [ -z "${EDITOR+x}" ] || ! _is_first_command_in_variable_are_program "${EDITOR}"; then
+            die "EDITOR (${EDITOR}) is invalid" "${EXIT_INVALID_STATE}"
         fi
-        VISUAL="$EDITOR"
+        VISUAL="${EDITOR}"
     fi
 
 
-    die_if_name_not_entered "$1"
-    die_if_invalid_path "$1"
+    die_if_name_not_entered "${1}"
+    die_if_invalid_path "${1}"
 
-    test -d "$PREFIX/$1" && die "Can\`t edit directory '$1'" $EXIT_INVALID_ARGUMENT
+    test -d "${PREFIX}/${1}" && die "Can\`t edit directory '${1}'" $EXIT_INVALID_ARGUMENT
 
-    if [ ! -e "$PREFIX/$1" ]; then
-        echo "Creating new note '$1'"
+    if [ ! -e "${PREFIX}/${1}" ]; then
+        echo "Creating new note '${1}'"
         _new_note_flag=true
     else
         _new_note_flag=false
@@ -244,34 +252,34 @@ cmd_edit() {
 
     _new_dir_flag=false
 
-    _dirname="$(dirname "$1")"
+    _dirname="$(dirname "${1}")"
 
-    if [ ! -d "$PREFIX/$_dirname" ]; then
-        mkdir -p "$PREFIX/$_dirname"
+    if [ ! -d "${PREFIX}/${_dirname}" ]; then
+        mkdir -p "${PREFIX}/${_dirname}"
         _new_dir_flag=true
     fi
 
-    echo "$1" > "$LAST_EDIT_NOTE"
-    $VISUAL "$PREFIX/$1"
+    echo "${1}" > "${LAST_EDIT_NOTE}"
+    ${VISUAL} "${PREFIX}/${1}"
 
-    if [ -e "$PREFIX/$1" ]; then
-        if $_new_note_flag; then
-            git_add "$1"
-            git_commit "Created new note $1 by ${HOST}"
-            echo "Note '$1' has been created"
-        elif [ -n "$(cmd_git diff "$1")" ]; then
-            git_add "$1"
-            git_commit "Edited note $1 by ${HOST}"
-            echo "Note '$1' has been edited"
+    if [ -e "${PREFIX}/${1}" ]; then
+        if ${_new_note_flag}; then
+            git_add "${1}"
+            git_commit "Created new note ${1} by ${HOST:-${USER}}"
+            echo "Note '${1}' has been created"
+        elif [ -n "$(cmd_git diff "${1}")" ]; then
+            git_add "${1}"
+            git_commit "Edited note ${1} by ${HOST:-${USER}}"
+            echo "Note '${1}' has been edited"
         else
-            echo "Note '$1' wasn\`t edited"
+            echo "Note '${1}' wasn\`t edited"
         fi
     else
-        echo "New note '$1' wasn\`t created"
-        if $_new_dir_flag; then
+        echo "New note '${1}' wasn\`t created"
+        if ${_new_dir_flag}; then
             # removes only empty dirs recursively
-            cd "$PREFIX"
-            rmdir -p "$_dirname"
+            cd "${PREFIX}"
+            rmdir -p "${_dirname}"
         fi
     fi
 }
@@ -281,79 +289,79 @@ cmd_today() {
 }
 
 cmd_last() {
-    if [ ! -e "$LAST_EDIT_NOTE" ] || [ -z "$(cat "$LAST_EDIT_NOTE")"  ]; then
-        die "No last note" $EXIT_INVALID_STATE
+    if [ ! -e "${LAST_EDIT_NOTE}" ] || [ -z "$(cat "${LAST_EDIT_NOTE}")"  ]; then
+        die "No last note" "${EXIT_INVALID_STATE}"
     fi
-    cmd_edit "$(cat "$LAST_EDIT_NOTE")"
+    cmd_edit "$(cat "${LAST_EDIT_NOTE}")"
 }
 
 cmd_fedit() {
-    die_if_depends_not_installed "$FZF"
-    die_if_depends_not_installed "$FZF_PAGER"
+    die_if_depends_not_installed "${FZF}"
+    die_if_depends_not_installed "${FZF_PAGER}"
 
     INITIAL_QUERY="${1:-}"
 
     export FZF_DEFAULT_OPTS="\
-        ${FZF_DEFAULT_OPTS:-}
-        --no-multi
-        --no-sort
-        --preview-window right:60%
-        --preview=\"$FZF_PAGER --plain --wrap=never --color=always $PREFIX/{}\""
+${FZF_DEFAULT_OPTS:-}
+--no-multi
+--no-sort
+--preview-window right:60%
+--preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\""
 
-    cmd_edit "$(cmd_complete_notes | $FZF --query "$INITIAL_QUERY")"
+    cmd_edit "$(cmd_complete_notes | ${FZF} --query "${INITIAL_QUERY}")"
 }
 
 cmd_fg() {
-    die_if_depends_not_installed "$FZF"
-    die_if_depends_not_installed "$FZF_PAGER"
-    die_if_depends_not_installed "$RG"
+    die_if_depends_not_installed "${FZF}"
+    die_if_depends_not_installed "${FZF_PAGER}"
+    die_if_depends_not_installed "${RG}"
 
     INITIAL_QUERY="${1:-}"
 
     export FZF_DEFAULT_OPTS="\
-        ${FZF_DEFAULT_OPTS:-}
-        --no-multi
-        --no-sort
-        --preview-window right:40%
-        --preview=\"rgout={}; \
-        lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
-        $FZF_PAGER --plain --wrap=never --color=always \
-        -H \$lineno \
-        -r \$lineno:-\$((FZF_PREVIEW_LINES/2)) \
-        -r \$lineno:+\$FZF_PREVIEW_LINES \
-        $PREFIX/\${rgout%%:*}\""
+${FZF_DEFAULT_OPTS:-}
+--no-multi
+--no-sort
+--preview-window right:40%
+--preview=\"rgout={}; \
+lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
+${FZF_PAGER} --plain --wrap=never --color=always \
+-H \$lineno \
+-r \$lineno:-\$((FZF_PREVIEW_LINES/2)) \
+-r \$lineno:+\$FZF_PREVIEW_LINES \
+${PREFIX}/\${rgout%%:*}\""
 
-    RG_PREFIX="$RG --column --line-number --no-heading --color=always --smart-case"
-    choosed_note="$(FZF_DEFAULT_COMMAND="$RG_PREFIX '$INITIAL_QUERY'" \
-           $FZF --bind "change:reload:$RG_PREFIX {q} || true" \
-           --ansi --disabled --query "$INITIAL_QUERY")"
+    RG_PREFIX="${RG} --column --line-number --no-heading --color=always --smart-case"
+    choosed_note="$(FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}'" \
+           ${FZF} --bind "change:reload:${RG_PREFIX} {q} || true" \
+           --ansi --disabled --query "${INITIAL_QUERY}")"
 
     cmd_edit "${choosed_note%%:*}"
 }
 
 cmd_list() {
     die_if_invalid_path "$*"
-    cd "$PREFIX"
+    cd "${PREFIX}"
     ls "${LS_OPTIONS:-"--color=auto"}" "$@"
 }
 
 cmd_show() {
-    die_if_invalid_path "$1"
-    die_if_name_not_entered "$1"
+    die_if_invalid_path "${1}"
+    die_if_name_not_entered "${1}"
 
 
-    if ! _is_variable_set "NOTEPAGER" || ! _is_first_command_in_variable_are_program "$NOTEPAGER"; then
-        if ! _is_variable_set "PAGER" || ! _is_first_command_in_variable_are_program "$PAGER"; then
-            die "PAGER ($PAGER) is invalid" $EXIT_INVALID_STATE
+    if [ -z "${NOTEPAGER+x}" ] || ! _is_first_command_in_variable_are_program "${NOTEPAGER}"; then
+        if [ -z "${PAGER+x}" ] || ! _is_first_command_in_variable_are_program "${PAGER}"; then
+            die "PAGER (${PAGER}) is invalid" "${EXIT_INVALID_STATE}"
         fi
-        NOTEPAGER="$PAGER"
+        NOTEPAGER="${PAGER}"
     fi
 
-    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
+    test -e "${PREFIX}/${1}" || die "Note '${1}' doesn\`t exist" "${EXIT_INVALID_ARGUMENT}"
 
-    $NOTEPAGER "$PREFIX/$1"
+    ${NOTEPAGER} "${PREFIX}/${1}"
 
-    exit $EXIT_SUCCESS
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_ls() {
@@ -363,96 +371,96 @@ cmd_ls() {
     else
         cmd_list "$@"
     fi
-    exit $EXIT_SUCCESS
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_mkdir() {
-    die_if_name_not_entered "$1"
-    die_if_invalid_path "$1"
+    die_if_name_not_entered "${1}"
+    die_if_invalid_path "${1}"
 
-    mkdir -p "$PREFIX/$1"
+    mkdir -p "${PREFIX}/${1}"
 }
 
 cmd_tree() {
     path="${1:-.}"
 
-    die_if_invalid_path "$path"
+    die_if_invalid_path "${path}"
     die_if_depends_not_installed "tree"
 
-    test -d "$PREFIX/$path" || die "'$path' not a directory" $EXIT_INVALID_ARGUMENT
-    cd "$PREFIX"
+    test -d "${PREFIX}/${path}" || die "'${path}' not a directory" "${EXIT_INVALID_ARGUMENT}"
+    cd "${PREFIX}"
 
-    tree -N -C --noreport "$path"
-    exit $EXIT_SUCCESS
+    tree -N -C --noreport "${path}"
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_delete() {
-    die_if_invalid_path "$1"
-    die_if_name_not_entered "$1"
-    test -e "$PREFIX/$1" || die "Note '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
-    cmd_git rm -r "$1"
-    git_commit "Removed note $1"
+    die_if_invalid_path "${1}"
+    die_if_name_not_entered "${1}"
+    test -e "${PREFIX}/${1}" || die "Note '${1}' doesn\`t exist" "${EXIT_INVALID_ARGUMENT}"
+    cmd_git rm -r "${1}"
+    git_commit "Removed note ${1}"
 }
 
 cmd_rename() {
-    die_if_invalid_path "$1"
-    die_if_invalid_path "$2"
-    die_if_name_not_entered "$1"
-    die_if_name_not_entered "$2"
-    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
-    test -f "$PREFIX/$2" && die "Note '$2' already exists" $EXIT_INVALID_ARGUMENT
+    die_if_invalid_path "${1}"
+    die_if_invalid_path "${2}"
+    die_if_name_not_entered "${1}"
+    die_if_name_not_entered "${2}"
+    test -e "${PREFIX}/${1}" || die "Note or directory '${1}' doesn\`t exist" "$EXIT_INVALID_ARGUMENT"
+    test -f "${PREFIX}/${2}" && die "Note '${2}' already exists" "$EXIT_INVALID_ARGUMENT"
 
-    _dirname="$(dirname "$2")"
+    _dirname="$(dirname "${2}")"
 
-    if [ ! -d "$PREFIX/$_dirname" ]; then
-        mkdir -p "$PREFIX/$_dirname"
+    if [ ! -d "${PREFIX}/${_dirname}" ]; then
+        mkdir -p "${PREFIX}/${_dirname}"
     fi
 
-    mv "$PREFIX/$1" "$PREFIX/$2"
-    git_add "$1"
-    git_add "$2"
-    git_commit "Note $1 renamed to $2"
+    mv "${PREFIX}/${1}" "${PREFIX}/${2}"
+    git_add "${1}"
+    git_add "${2}"
+    git_commit "Note ${1} renamed to ${2}"
 }
 
 cmd_draft() {
-    cmd_rename "$1" "draft/${1}"
+    cmd_rename "${1}" "draft/${1}"
 }
 
 cmd_undraft() {
-    cmd_rename "draft/${1}" "$1"
+    cmd_rename "draft/${1}" "${1}"
 }
 
 cmd_ln() {
-    die_if_invalid_path "$1"
-    die_if_invalid_path "$2"
-    die_if_name_not_entered "$1"
-    die_if_name_not_entered "$2"
+    die_if_invalid_path "${1}"
+    die_if_invalid_path "${2}"
+    die_if_name_not_entered "${1}"
+    die_if_name_not_entered "${2}"
 
-    test -e "$PREFIX/$1" || die "Note or directory '$1' doesn\`t exist" $EXIT_INVALID_ARGUMENT
-    test -f "$PREFIX/$2" && die "Note or directory '$2' already exists" $EXIT_INVALID_ARGUMENT
+    test -e "${PREFIX}/${1}" || die "Note or directory '${1}' doesn\`t exist" "${EXIT_INVALID_ARGUMENT}"
+    test -f "${PREFIX}/${2}" && die "Note or directory '${2}' already exists" "${EXIT_INVALID_ARGUMENT}"
 
-    ln -s "$PREFIX/$1" "$PREFIX/$2"
-    git_add "$2"
-    git_commit "Created symlink $2 to note $1"
+    ln -s "${PREFIX}/${1}" "${PREFIX}/${2}"
+    git_add "${2}"
+    git_commit "Created symlink ${2} to note ${1}"
 }
 
 cmd_find() {
     die_if_depends_not_installed "find"
-    find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o -iname "$1" -print | _exclude_prefix
-    exit $EXIT_SUCCESS
+    find "${PREFIX}" \( -name .git -o -name '.img*' \) -prune -o -iname "${1}" -print | _exclude_prefix
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_grep() {
-    grep "$1" "$PREFIX" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
-    exit $EXIT_SUCCESS
+    grep "${1}" "${PREFIX}" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_export() {
-    tar -C "$PREFIX" -czf - .
+    tar -C "${PREFIX}" -czf - .
 }
 
 _highlight_text() {
-    nocolor=$'\e[0m'
+    nocolor="$(printf '\e[0m')"
     sed -e "s/${1}/${2}${1}${nocolor}/g"
 }
 
@@ -460,15 +468,15 @@ cmd_sync() {
     ff="Fast-forward"
     merge="Merge"
 
-    red=$'\e[31m'
-    green=$'\e[32m'
+    red="$(printf '\e[31m')"
+    green="$(printf '\e[32m')"
 
-    output="$(cmd_git pull "$ORIGIN" "$BRANCH" --strategy-option ours --no-rebase --no-edit)"
-    echo -e "$output" | \
-        _highlight_text "$ff" "$green" | \
-        _highlight_text "$merge" "$red"
+    output="$(cmd_git pull "${ORIGIN}" "${BRANCH}" --strategy-option ours --no-rebase --no-edit)"
+    printf '%s\n' "${output}" | \
+        _highlight_text "${ff}" "${green}" | \
+        _highlight_text "${merge}" "${red}"
 
-    if echo "$output" | grep "$merge" 1>/dev/null; then
+    if echo "${output}" | grep "${merge}" 1>/dev/null; then
         if _is_yes "$(_ask_user "[?] Merge detected! Push merge-commit? [N/y]" "y")"; then
             cmd_git push
         fi
@@ -485,56 +493,57 @@ _format_and_sort_completions() {
 
 _find_notes_to_complete() {
     die_if_depends_not_installed "find"
-    find "$PREFIX" \( -name .git -o -name '.img*' \) -prune -o $1 -print | _format_and_sort_completions
+    find "${PREFIX}" \( -name .git -o -name '.img*' \) -prune -o ${1} -print | _format_and_sort_completions
 }
 
 __error_if_storage_not_initialized() {
     if __is_note_storage_initialized; then
-        echo -e "$OK_MESSAGE"
+        printf "${OK_MESSAGE}\n"
     else
-        echo -e "$ERROR_MESSAGE"
+        printf "${ERROR_MESSAGE}\n"
     fi
 }
 
 __error_if_invalid_VISUAL_variable() {
-    if _is_variable_set "VISUAL" && _is_depends_installed "$VISUAL"; then
-        echo -e "$OK_MESSAGE"
+    if [ -n "${VISUAL+x}" ] && _is_depends_installed "${VISUAL}"; then
+        printf "${OK_MESSAGE}\n"
     else
-        echo -e "$ERROR_MESSAGE"
+        printf "${ERROR_MESSAGE}\n"
     fi
 }
 
 __error_if_depends_not_installed() {
-    if _is_depends_installed "$1"; then
-        echo -e "$OK_MESSAGE"
+    if _is_depends_installed "${1}"; then
+        printf "${OK_MESSAGE}\n"
     else
-        echo -e "$ERROR_MESSAGE"
+        printf "${ERROR_MESSAGE}\n"
     fi
 }
 
 __warn_if_depends_not_installed() {
-    if _is_depends_installed "$1"; then
-        echo -e "$OK_MESSAGE"
+    if _is_depends_installed "${1}"; then
+        printf "${OK_MESSAGE}\n"
     else
-        echo -e "$WARN_MESSAGE"
+        printf "${WARN_MESSAGE}\n"
     fi
 }
 
 cmd_checkhealth() {
-    echo -e "Is note storage initialized?... $(__error_if_storage_not_initialized)"
+    printf "%s\n" "Is note storage initialized?... $(__error_if_storage_not_initialized)"
 
-    echo -e "Is variable VISUAL valid?... $(__error_if_invalid_VISUAL_variable)"
+    printf '%s\n' "Is variable \$VISUAL valid?... $(__error_if_invalid_VISUAL_variable)"
 
-    echo -e "Is dependencies installed?..."
-    echo -e "\tgit $(__error_if_depends_not_installed git)"
+    printf '%s\n' "Is dependencies installed?..."
+    printf '\t%s\n' "git $(__error_if_depends_not_installed git)"
 
-    echo -e "Is optional dependencies installed?..."
-    echo -e "\t$FZF $(__warn_if_depends_not_installed $FZF)"
-    echo -e "\t$FZF_PAGER $(__warn_if_depends_not_installed $FZF_PAGER)"
-    echo -e "\t$RG $(__warn_if_depends_not_installed $RG)"
-    echo -e "\ttree $(__warn_if_depends_not_installed tree)"
-    echo -e "\tfind $(__warn_if_depends_not_installed find)"
-    exit $EXIT_SUCCESS
+    printf '%s\n' "Is optional dependencies installed?..."
+    printf '\t%s\n' "${FZF} $(__warn_if_depends_not_installed "${FZF}")"
+    printf '\t%s\n' "${FZF_PAGER} $(__warn_if_depends_not_installed "${FZF_PAGER}")"
+    printf '\t%s\n' "${RG} $(__warn_if_depends_not_installed "${RG}")"
+    printf '\t%s\n' "tree $(__warn_if_depends_not_installed tree)"
+    printf '\t%s\n' "find $(__warn_if_depends_not_installed find)"
+
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_complete_notes() {
@@ -581,10 +590,10 @@ checkhealth:Check installed dependencies and initialized storage"
 
 
 cmd_complete_bash_commands() {
-    IFS=$'\n'
-    for cmd in $(complete_commands)
+    IFS=';'
+    for cmd in $(complete_commands | tr '\n' ';')
     do
-        echo "$cmd" | cut -f1 -d":"
+        echo "${cmd}" | cut -f1 -d":"
     done
 }
 
@@ -593,8 +602,8 @@ cmd_complete_zsh_commands() {
 }
 
 cmd_get_storage() {
-    echo "$PREFIX"
-    exit $EXIT_SUCCESS
+    echo "${PREFIX}"
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_complete() {
@@ -605,22 +614,22 @@ cmd_complete() {
         bash) shift;                cmd_complete_bash_commands  "$@" ;;
         zsh) shift;                 cmd_complete_zsh_commands   "$@" ;;
     esac
-    exit $EXIT_SUCCESS
+    exit "${EXIT_SUCCESS}"
 }
 
 _die_if_locked() {
-    if [ -e "$LOCKFILE" ]; then
-        die "Seems another process is running. If not, just delete $LOCKFILE" $EXIT_INVALID_STATE
+    if [ -e "${LOCKFILE}" ]; then
+        die "Seems another process is running. If not, just delete ${LOCKFILE}" "${EXIT_INVALID_STATE}"
     fi
 }
 
 _set_lock() {
-    mkdir -p "$(dirname "$LOCKFILE")"
-    touch "$LOCKFILE"
+    mkdir -p "$(dirname "${LOCKFILE}")"
+    touch "${LOCKFILE}"
 }
 
 _release_lock() {
-    rm "$LOCKFILE"
+    rm "${LOCKFILE}"
 }
 
 _is_repository_not_clean() {
@@ -628,27 +637,27 @@ _is_repository_not_clean() {
 }
 
 if [ -z "${1+x}" ]; then
-    die "Type '${PROGRAM} help' for usage" $EXIT_FAILURE
+    die "Type '${PROGRAM} help' for usage" "${EXIT_FAILURE}"
 fi
 
-case "$1" in
-    init) shift;            cmd_init                 "$@" ;;
-    help|--help|-h) shift;  cmd_usage $EXIT_SUCCESS  "$@" ;;
-    version|-V) shift;      cmd_version              "$@" ;;
-    checkhealth) shift;     cmd_checkhealth          "$@" ;;
+case "${1}" in
+    init) shift;            cmd_init                     "$@" ;;
+    help|--help|-h) shift;  cmd_usage "${EXIT_SUCCESS}"  "$@" ;;
+    version|-V) shift;      cmd_version                  "$@" ;;
+    checkhealth) shift;     cmd_checkhealth              "$@" ;;
 esac
 
 
 die_if_not_initialized
-PREFIX="$(cat "$CONFIGFILE")"
-cd "$PREFIX"
+PREFIX="$(cat "${CONFIGFILE}")"
+cd "${PREFIX}"
 
 if _is_repository_not_clean; then
     echo "${PROGRAM}: WARNING: repository not clean!" 1>&2
 fi
 
 
-case "$1" in
+case "${1}" in
     show|cat) shift;  cmd_show         "$@" ;;
     list|ls) shift;   cmd_ls           "$@" ;;
     tree) shift;      cmd_tree         "$@" ;;
@@ -664,7 +673,7 @@ _set_lock
 trap _release_lock EXIT INT HUP
 
 
-case "$1" in
+case "${1}" in
     edit|e) shift;    cmd_edit     "$@" ;;
     today) shift;     cmd_today    "$@" ;;
     fedit|fe) shift;  cmd_fedit    "$@" ;;
@@ -680,6 +689,6 @@ case "$1" in
     sync) shift;      cmd_sync     "$@" ;;
     git) shift;       cmd_git      "$@" ;;
 
-    *)                cmd_usage $EXIT_FAILURE "$@" ;;
+    *)                cmd_usage "${EXIT_FAILURE}" "$@" ;;
 esac
-exit $EXIT_SUCCESS
+exit "${EXIT_SUCCESS}"
