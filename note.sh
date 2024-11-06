@@ -607,7 +607,7 @@ cmd_get_storage() {
 }
 
 cmd_complete() {
-    case "$1" in
+    case "${1}" in
         edit|e|fe|show|cat) shift;  cmd_complete_notes          "$@" ;;
         tree|mkdir) shift;          cmd_complete_subdirs        "$@" ;;
         mv|rm|ls|list) shift;       cmd_complete_files          "$@" ;;

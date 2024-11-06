@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-source tests/base.sh
+. tests/base.sh
 
 echo ">>> $0 >>> Test .. in path cause error"
 echo "." | { ! "$script" edit ../some.md 1>/dev/null; }

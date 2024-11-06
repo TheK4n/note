@@ -24,7 +24,7 @@ install:
     fi
 
 test:
-	@bash -c 'set -e; for file in ./tests/*_test_*.sh; do $(SCRIPTNAME) init -p $$(mktemp -td "note.XXXXX"); bash "$$file"; done'
+	@sh -c 'set -e; for file in ./tests/*_test_*.sh; do $(SCRIPTNAME) init -p $$(mktemp -td "note.XXXXX"); sh "$$file"; done'
 	@$(SCRIPTNAME) init >/dev/null
 
 clean-test:

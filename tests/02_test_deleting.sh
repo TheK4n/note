@@ -1,12 +1,12 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-source tests/base.sh
+. tests/base.sh
 
 filename="test2.md"
 
 
 echo ">>> $0 >>> Creating new note $filename"
-echo -n "sdfasdff" | "$script" edit "$filename" 1>/dev/null
+echo "sdfasdff" | "$script" edit "$filename" 1>/dev/null
 
 echo ">>> $0 >>> Deleting note $filename"
 "$script" rm "$filename"

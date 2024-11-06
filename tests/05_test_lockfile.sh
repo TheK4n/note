@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 
-source tests/base.sh
+. tests/base.sh
 
 set -m
 
