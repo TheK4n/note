@@ -19,6 +19,9 @@ readonly BRANCH="master"
 PROGRAM="$(basename "${0}")"
 readonly PROGRAM
 
+PROGRAM_REALPATH="$(realpath "${0}")"
+readonly PROGRAM_REALPATH
+
 readonly FZF="fzf"
 readonly FZF_PAGER="bat"
 readonly RG="rg"
@@ -306,9 +309,11 @@ ${FZF_DEFAULT_OPTS:-}
 --no-multi
 --no-sort
 --preview-window right:60%
---preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\""
+--preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\"
+--bind enter:execute\(${PROGRAM_REALPATH}\ edit\ \"{1}\"\)"
 
-    cmd_edit "$(cmd_complete_notes | ${FZF} --query "${INITIAL_QUERY}")"
+    cmd_complete_notes | ${FZF} --query "${INITIAL_QUERY}"
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_fg() {
@@ -663,6 +668,7 @@ case "${1}" in
     tree) shift;      cmd_tree         "$@" ;;
     find) shift;      cmd_find         "$@" ;;
     grep) shift;      cmd_grep         "$@" ;;
+    fedit|fe) shift;  cmd_fedit        "$@" ;;
     complete) shift;  cmd_complete     "$@" ;;
     --prefix) shift;  cmd_get_storage  "$@" ;;
 esac
@@ -676,7 +682,6 @@ trap _release_lock EXIT INT HUP
 case "${1}" in
     edit|e) shift;    cmd_edit     "$@" ;;
     today) shift;     cmd_today    "$@" ;;
-    fedit|fe) shift;  cmd_fedit    "$@" ;;
     fgrep|fg) shift;  cmd_fg       "$@" ;;
     last) shift;      cmd_last     "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
