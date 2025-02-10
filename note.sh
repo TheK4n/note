@@ -306,6 +306,7 @@ ${FZF_DEFAULT_OPTS:-}
 --no-multi
 --no-sort
 --preview-window right:60%
+--bind ctrl-s:execute\(${PROGRAM}\ show\ \"{1}\"\)
 --preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\""
 
     cmd_edit "$(cmd_complete_notes | ${FZF} --query "${INITIAL_QUERY}")"
