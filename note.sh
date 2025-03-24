@@ -470,22 +470,7 @@ _highlight_text() {
 }
 
 cmd_sync() {
-    ff="Fast-forward"
-    merge="Merge"
-
-    red="$(printf '\e[31m')"
-    green="$(printf '\e[32m')"
-
-    output="$(cmd_git pull "${ORIGIN}" "${BRANCH}" --strategy-option ours --no-rebase --no-edit)"
-    printf '%s\n' "${output}" | \
-        _highlight_text "${ff}" "${green}" | \
-        _highlight_text "${merge}" "${red}"
-
-    if echo "${output}" | grep "${merge}" 1>/dev/null; then
-        if _is_yes "$(_ask_user "[?] Merge detected! Push merge-commit? [N/y]" "y")"; then
-            cmd_git push
-        fi
-    fi
+    cmd_git pull "${ORIGIN}" "${BRANCH}" --rebase --no-edit
 }
 
 _exclude_prefix() {
