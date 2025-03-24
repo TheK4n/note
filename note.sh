@@ -268,11 +268,11 @@ cmd_edit() {
     if [ -e "${PREFIX}/${1}" ]; then
         if ${_new_note_flag}; then
             git_add "${1}"
-            git_commit "Created new note ${1} by ${HOST:-${HOSTNAME:-$USER}}"
+            git_commit "Created new note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been created"
         elif [ -n "$(cmd_git diff "${1}")" ]; then
             git_add "${1}"
-            git_commit "Edited note ${1} by ${HOST:-${HOSTNAME:-$USER}}"
+            git_commit "Edited note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been edited"
         else
             echo "Note '${1}' wasn\`t edited"
