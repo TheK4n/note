@@ -43,7 +43,7 @@ Find note by content with fzf and edit with $VISUAL
 .PP
 \fBsync\fR
 .RS 4
-Pull changes from remote note storage. In case of conflict, accepts yours changes.
+Pull changes from remote note storage(rebase and then push)
 .RE
 .PP
 \fBgit ...\fR

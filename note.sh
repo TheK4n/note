@@ -92,7 +92,7 @@ cmd_usage() {
     ${PROGRAM} checkhealth
         Check installed dependencies and initialized storage
     ${PROGRAM} sync
-        Pull changes from remote note storage(in case of conflict, accepts yours changes)
+        Pull changes from remote note storage(rebase and then push)
     ${PROGRAM} git ...
         Proxy commands to git
     ${PROGRAM} --prefix
@@ -105,24 +105,6 @@ cmd_usage() {
 cmd_version() {
     echo "%%VERSION%%"
     exit "${EXIT_SUCCESS}"
-}
-
-_ask_user() {
-    question="${1}"
-    default_value="${2}"
-
-    printf '%s (default=%s): ' "${question}" "${default_value}" 1>&2
-    read -r answer
-
-    if [ -z "${answer}" ]; then
-        answer="${default_value}"
-    fi
-
-    echo "${answer}"
-}
-
-_is_yes() {
-    [ "${1}" = y ]
 }
 
 _string_valid_arg() {
@@ -268,10 +250,12 @@ cmd_edit() {
     if [ -e "${PREFIX}/${1}" ]; then
         if ${_new_note_flag}; then
             git_add "${1}"
+            # shellcheck disable=SC3028
             git_commit "Created new note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been created"
         elif [ -n "$(cmd_git diff "${1}")" ]; then
             git_add "${1}"
+            # shellcheck disable=SC3028
             git_commit "Edited note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been edited"
         else
@@ -464,13 +448,9 @@ cmd_export() {
     tar -C "${PREFIX}" -czf - .
 }
 
-_highlight_text() {
-    nocolor="$(printf '\e[0m')"
-    sed -e "s/${1}/${2}${1}${nocolor}/g"
-}
-
 cmd_sync() {
-    cmd_git pull "${ORIGIN}" "${BRANCH}" --rebase --no-edit
+    cmd_git pull "${ORIGIN}" "${BRANCH}" --rebase --no-edit && \
+        cmd_git push
 }
 
 _exclude_prefix() {
@@ -483,43 +463,44 @@ _format_and_sort_completions() {
 
 _find_notes_to_complete() {
     die_if_depends_not_installed "find"
+    #shellcheck disable=SC2086
     find "${PREFIX}" \( -name .git -o -name '.img*' \) -prune -o ${1} -print | _format_and_sort_completions
 }
 
 __error_if_storage_not_initialized() {
     if __is_note_storage_initialized; then
-        printf "${OK_MESSAGE}\n"
+        printf '%b\n' "${OK_MESSAGE}"
     else
-        printf "${ERROR_MESSAGE}\n"
+        printf '%b\n' "${ERROR_MESSAGE}"
     fi
 }
 
 __error_if_invalid_VISUAL_variable() {
     if [ -n "${VISUAL+x}" ] && _is_depends_installed "${VISUAL}"; then
-        printf "${OK_MESSAGE}\n"
+        printf '%b\n' "${OK_MESSAGE}"
     else
-        printf "${ERROR_MESSAGE}\n"
+        printf '%b\n' "${ERROR_MESSAGE}"
     fi
 }
 
 __error_if_depends_not_installed() {
     if _is_depends_installed "${1}"; then
-        printf "${OK_MESSAGE}\n"
+        printf '%b\n' "${OK_MESSAGE}"
     else
-        printf "${ERROR_MESSAGE}\n"
+        printf '%b\n' "${ERROR_MESSAGE}"
     fi
 }
 
 __warn_if_depends_not_installed() {
     if _is_depends_installed "${1}"; then
-        printf "${OK_MESSAGE}\n"
+        printf '%b\n' "${OK_MESSAGE}"
     else
-        printf "${WARN_MESSAGE}\n"
+        printf '%b\n' "${WARN_MESSAGE}"
     fi
 }
 
 cmd_checkhealth() {
-    printf "%s\n" "Is note storage initialized?... $(__error_if_storage_not_initialized)"
+    printf '%s\n' "Is note storage initialized?... $(__error_if_storage_not_initialized)"
 
     printf '%s\n' "Is variable \$VISUAL valid?... $(__error_if_invalid_VISUAL_variable)"
 
@@ -572,7 +553,7 @@ tree:Show tree of notes
 find:Find note by name
 grep:Find notes by pattern
 mkdir:Creates directory
-sync:Pull changes from remote note storage(in case of conflict, accepts yours changes)
+sync:Pull changes from remote note storage(rebase and then push)
 git:Proxy commands to git
 --prefix:Prints to stdout current notes storage
 checkhealth:Check installed dependencies and initialized storage"
@@ -619,6 +600,7 @@ _set_lock() {
 }
 
 _release_lock() {
+    # shellcheck disable=SC2317
     rm "${LOCKFILE}"
 }
 
