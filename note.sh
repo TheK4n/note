@@ -194,7 +194,7 @@ _string_starts_with_slash() {
 
 die_if_invalid_path() {
     if _string_contain_dotdot "${1}"; then
-        die "Path can\`t contains '..'" "${EXIT_INVALID_ARGUMENT}"
+        die "Path can\`t contain '..'" "${EXIT_INVALID_ARGUMENT}"
     fi
 
     if _string_starts_with_slash "${1}"; then
@@ -250,12 +250,12 @@ cmd_edit() {
     if [ -e "${PREFIX}/${1}" ]; then
         if ${_new_note_flag}; then
             git_add "${1}"
-            # shellcheck disable=SC3028
+            #shellcheck disable=SC3028
             git_commit "Created new note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been created"
         elif [ -n "$(cmd_git diff "${1}")" ]; then
             git_add "${1}"
-            # shellcheck disable=SC3028
+            #shellcheck disable=SC3028
             git_commit "Edited note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been edited"
         else
@@ -396,8 +396,8 @@ cmd_rename() {
     die_if_invalid_path "${2}"
     die_if_name_not_entered "${1}"
     die_if_name_not_entered "${2}"
-    test -e "${PREFIX}/${1}" || die "Note or directory '${1}' doesn\`t exist" "$EXIT_INVALID_ARGUMENT"
-    test -f "${PREFIX}/${2}" && die "Note '${2}' already exists" "$EXIT_INVALID_ARGUMENT"
+    test -e "${PREFIX}/${1}" || die "Note or directory '${1}' doesn\`t exist" "${EXIT_INVALID_ARGUMENT}"
+    test -f "${PREFIX}/${2}" && die "Note '${2}' already exists" "${EXIT_INVALID_ARGUMENT}"
 
     _dirname="$(dirname "${2}")"
 
@@ -600,7 +600,7 @@ _set_lock() {
 }
 
 _release_lock() {
-    # shellcheck disable=SC2317
+    #shellcheck disable=SC2317
     rm "${LOCKFILE}"
 }
 
