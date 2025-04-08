@@ -291,7 +291,6 @@ cmd_fedit() {
     export FZF_DEFAULT_OPTS="\
 ${FZF_DEFAULT_OPTS:-}
 --no-multi
---no-sort
 --preview-window right:60%
 --preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\"
 --bind enter:execute\(${PROGRAM_REALPATH}\ edit\ \"{1}\"\),ctrl-s:execute\(${PROGRAM_REALPATH}\ show\ \"{1}\"\)"
@@ -310,7 +309,6 @@ cmd_fg() {
     export FZF_DEFAULT_OPTS="\
 ${FZF_DEFAULT_OPTS:-}
 --no-multi
---no-sort
 --preview-window right:40%
 --preview=\"rgout={}; \
 lineno=\$(echo \$rgout | awk -F: '{print \$2}'); \
