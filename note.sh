@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright © 2022-2024 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
+# Copyright © 2022-2025 Kan Vladislav <thek4n@yandex.ru>. All rights reserved.
 
 
 set -ue
