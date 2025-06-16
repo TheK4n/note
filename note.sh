@@ -5,13 +5,25 @@
 set -ue
 
 
-: "${XDG_DATA_HOME:="${HOME}/.local/share"}"
-readonly CONFIGFILE="${XDG_DATA_HOME}/note/notes-storage-path"
-readonly DEFAULT_PREFIX="${HOME}/.notes"
+: "${XDG_CONFIG_HOME:="${HOME}/.config"}"
+readonly CONFIGDIR="${XDG_CONFIG_HOME}/note"
+mkdir -p "${CONFIGDIR}"
+readonly CONFIGFILE="${CONFIGDIR}/storage"
 
-readonly RUNTIME_DIR="${HOME}/.local/state"
-readonly LOCKFILE="${RUNTIME_DIR}/note/lock"
-readonly LAST_EDIT_NOTE="${RUNTIME_DIR}/note/last"
+: "${XDG_DATA_HOME:="${HOME}/.local/share"}"
+readonly DATADIR="${XDG_DATA_HOME}/note"
+mkdir -p "${DATADIR}"
+readonly DEFAULT_PREFIX="${DATADIR}/notes"
+
+: "${XDG_STATE_HOME:="${HOME}/.local/state"}"
+readonly STATEDIR="${XDG_STATE_HOME}/note"
+mkdir -p "${STATEDIR}"
+readonly LAST_EDIT_NOTE="${STATEDIR}/last"
+
+: "${XDG_RUNTIME_DIR:="${HOME}/.local/state"}"
+readonly RUNTIMEDIR="${XDG_RUNTIME_DIR}/note"
+mkdir -p "${RUNTIMEDIR}"
+readonly LOCKFILE="${RUNTIMEDIR}/lock"
 
 readonly ORIGIN="origin"
 readonly BRANCH="master"
