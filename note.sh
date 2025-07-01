@@ -335,7 +335,11 @@ ${PREFIX}/\${rgout%%:*}\""
            ${FZF} --bind "change:reload:${RG_PREFIX} {q} || true" \
            --ansi --disabled --query "${INITIAL_QUERY}")"
 
-    cmd_edit "${choosed_note%%:*}"
+    if [ -n "${NOGOTOLINE:-}" ]; then
+        cmd_edit "${choosed_note%%:*}"
+    else
+        cmd_edit "$(echo "${choosed_note}" | cut -d: -f1-3)"
+    fi
 }
 
 cmd_list() {
