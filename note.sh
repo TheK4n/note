@@ -234,14 +234,16 @@ cmd_edit() {
         VISUAL="${EDITOR}"
     fi
 
+    notename="${1}"
+    notename_without_linecolumn="${notename%%:*}"
 
-    die_if_name_not_entered "${1}"
-    die_if_invalid_path "${1}"
+    die_if_name_not_entered "${notename_without_linecolumn}"
+    die_if_invalid_path "${notename_without_linecolumn}"
 
-    test -d "${PREFIX}/${1}" && die "Can\`t edit directory '${1}'" $EXIT_INVALID_ARGUMENT
+    test -d "${PREFIX}/${notename_without_linecolumn}" && die "Can\`t edit directory '${notename_without_linecolumn}'" $EXIT_INVALID_ARGUMENT
 
-    if [ ! -e "${PREFIX}/${1}" ]; then
-        echo "Creating new note '${1}'"
+    if [ ! -e "${PREFIX}/${notename_without_linecolumn}" ]; then
+        echo "Creating new note '${notename_without_linecolumn}'"
         _new_note_flag=true
     else
         _new_note_flag=false
@@ -249,32 +251,32 @@ cmd_edit() {
 
     _new_dir_flag=false
 
-    _dirname="$(dirname "${1}")"
+    _dirname="$(dirname "${notename_without_linecolumn}")"
 
     if [ ! -d "${PREFIX}/${_dirname}" ]; then
         mkdir -p "${PREFIX}/${_dirname}"
         _new_dir_flag=true
     fi
 
-    echo "${1}" > "${LAST_EDIT_NOTE}"
-    ${VISUAL} "${PREFIX}/${1}"
+    echo "${notename_without_linecolumn}" > "${LAST_EDIT_NOTE}"
+    ${VISUAL} "${PREFIX}/${notename}"
 
-    if [ -e "${PREFIX}/${1}" ]; then
+    if [ -e "${PREFIX}/${notename_without_linecolumn}" ]; then
         if ${_new_note_flag}; then
-            git_add "${1}"
+            git_add "${notename_without_linecolumn}"
             #shellcheck disable=SC3028
-            git_commit "Created new note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
+            git_commit "Created new note ${notename_without_linecolumn} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
             echo "Note '${1}' has been created"
-        elif [ -n "$(cmd_git diff "${1}")" ]; then
-            git_add "${1}"
+        elif [ -n "$(cmd_git diff "${notename_without_linecolumn}")" ]; then
+            git_add "${notename_without_linecolumn}"
             #shellcheck disable=SC3028
-            git_commit "Edited note ${1} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
-            echo "Note '${1}' has been edited"
+            git_commit "Edited note ${notename_without_linecolumn} by ${HOSTNAME:-${HOST:-${USER:-unknown}}}"
+            echo "Note '${notename_without_linecolumn}' has been edited"
         else
-            echo "Note '${1}' wasn\`t edited"
+            echo "Note '${notename_without_linecolumn}' wasn\`t edited"
         fi
     else
-        echo "New note '${1}' wasn\`t created"
+        echo "New note '${notename_without_linecolumn}' wasn\`t created"
         if ${_new_dir_flag}; then
             # removes only empty dirs recursively
             cd "${PREFIX}"
@@ -311,7 +313,7 @@ ${FZF_DEFAULT_OPTS:-}
     exit "${EXIT_SUCCESS}"
 }
 
-cmd_fg() {
+cmd_fgrep() {
     die_if_depends_not_installed "${FZF}"
     die_if_depends_not_installed "${FZF_PAGER}"
     die_if_depends_not_installed "${RG}"
@@ -663,7 +665,7 @@ trap _release_lock EXIT INT HUP
 case "${1}" in
     edit|e) shift;    cmd_edit     "$@" ;;
     today) shift;     cmd_today    "$@" ;;
-    fgrep|fg) shift;  cmd_fg       "$@" ;;
+    fgrep|fg) shift;  cmd_fgrep       "$@" ;;
     last) shift;      cmd_last     "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
     mv) shift;        cmd_rename   "$@" ;;
