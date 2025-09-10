@@ -115,7 +115,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "%%VERSION%%"
+    echo "2.0.1"
     exit "${EXIT_SUCCESS}"
 }
 
@@ -361,8 +361,6 @@ cmd_show() {
         fi
         NOTEPAGER="${PAGER}"
     fi
-
-    test -e "${PREFIX}/${1}" || die "Note '${1}' doesn\`t exist" "${EXIT_INVALID_ARGUMENT}"
 
     ${NOTEPAGER} "${PREFIX}/${1}"
 
