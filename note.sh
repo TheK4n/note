@@ -453,6 +453,12 @@ cmd_find() {
     exit "${EXIT_SUCCESS}"
 }
 
+cmd_random() {
+    die_if_depends_not_installed "find"
+    cmd_edit "$(find "${PREFIX}" \( -name .git -o -name '.img*' \) -prune -o -iname '*' -a -type f -print | _exclude_prefix | shuf -n 1)"
+    exit "${EXIT_SUCCESS}"
+}
+
 cmd_grep() {
     grep "${1}" "${PREFIX}" -rH --color=always --exclude-dir=".git" --exclude-dir=".img" | _exclude_prefix
     exit "${EXIT_SUCCESS}"
@@ -663,8 +669,9 @@ trap _release_lock EXIT INT HUP
 case "${1}" in
     edit|e) shift;    cmd_edit     "$@" ;;
     today) shift;     cmd_today    "$@" ;;
-    fgrep|fg) shift;  cmd_fgrep       "$@" ;;
+    fgrep|fg) shift;  cmd_fgrep    "$@" ;;
     last) shift;      cmd_last     "$@" ;;
+    random) shift;    cmd_random   "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
     mv) shift;        cmd_rename   "$@" ;;
     draft) shift;     cmd_draft    "$@" ;;
