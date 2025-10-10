@@ -302,8 +302,8 @@ cmd_fedit() {
 
     INITIAL_QUERY="${1:-}"
 
-    export FZF_DEFAULT_OPTS="\
-${FZF_DEFAULT_OPTS:-}
+    #shellcheck disable=SC2089
+    export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-}
 --no-multi
 --preview-window right:60%
 --preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\"
@@ -320,6 +320,7 @@ cmd_fgrep() {
 
     INITIAL_QUERY="${1:-}"
 
+    #shellcheck disable=SC2090
     export FZF_DEFAULT_OPTS="\
 ${FZF_DEFAULT_OPTS:-}
 --no-multi
@@ -457,6 +458,10 @@ cmd_random() {
     die_if_depends_not_installed "find"
     cmd_edit "$(find "${PREFIX}" \( -name .git -o -name '.img*' \) -prune -o -iname '*' -a -type f -print | _exclude_prefix | shuf -n 1)"
     exit "${EXIT_SUCCESS}"
+}
+
+cmd_todo() {
+    cmd_fgrep todo
 }
 
 cmd_grep() {
@@ -619,8 +624,8 @@ _set_lock() {
     touch "${LOCKFILE}"
 }
 
+#shellcheck disable=SC2329
 _release_lock() {
-    #shellcheck disable=SC2317
     rm "${LOCKFILE}"
 }
 
@@ -657,6 +662,7 @@ case "${1}" in
     grep) shift;      cmd_grep         "$@" ;;
     fedit|fe) shift;  cmd_fedit        "$@" ;;
     fgrep|fg) shift;  cmd_fgrep        "$@" ;;
+    todo) shift;      cmd_todo         "$@" ;;
     complete) shift;  cmd_complete     "$@" ;;
     --prefix) shift;  cmd_get_storage  "$@" ;;
 esac
