@@ -333,15 +333,15 @@ ${FZF_PAGER} --plain --wrap=never --color=always \
 ${PREFIX}/\${rgout%%:*}\""
 
     RG_PREFIX="${RG} --column --line-number --no-heading --color=always --smart-case"
-    choosed_note="$(FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}'" \
-           ${FZF} --bind "change:reload:${RG_PREFIX} {q} || true" \
-           --ansi --disabled --query "${INITIAL_QUERY}")"
 
-    if [ -n "${NOGOTOLINE:-}" ]; then
-        cmd_edit "${choosed_note%%:*}"
-    else
-        cmd_edit "$(echo "${choosed_note}" | cut -d: -f1-3)"
-    fi
+    export FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}'"
+
+    ${FZF} --bind "change:reload:${RG_PREFIX} {q} || true" \
+           --delimiter ":" \
+           --bind "enter:execute(${PROGRAM_REALPATH} edit {1}:{2}:{3}),ctrl-s:execute(${PROGRAM_REALPATH} show {1}:)" \
+           --ansi --disabled --query "${INITIAL_QUERY}"
+
+    exit "${EXIT_SUCCESS}"
 }
 
 cmd_list() {
@@ -656,6 +656,7 @@ case "${1}" in
     find) shift;      cmd_find         "$@" ;;
     grep) shift;      cmd_grep         "$@" ;;
     fedit|fe) shift;  cmd_fedit        "$@" ;;
+    fgrep|fg) shift;  cmd_fgrep        "$@" ;;
     complete) shift;  cmd_complete     "$@" ;;
     --prefix) shift;  cmd_get_storage  "$@" ;;
 esac
@@ -669,7 +670,6 @@ trap _release_lock EXIT INT HUP
 case "${1}" in
     edit|e) shift;    cmd_edit     "$@" ;;
     today) shift;     cmd_today    "$@" ;;
-    fgrep|fg) shift;  cmd_fgrep    "$@" ;;
     last) shift;      cmd_last     "$@" ;;
     random) shift;    cmd_random   "$@" ;;
     rm) shift;        cmd_delete   "$@" ;;
