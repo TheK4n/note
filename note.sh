@@ -115,7 +115,7 @@ cmd_usage() {
 }
 
 cmd_version() {
-    echo "2.0.1"
+    echo "%%VERSION%%"
     exit "${EXIT_SUCCESS}"
 }
 
@@ -334,9 +334,9 @@ ${PREFIX}/\${rgout%%:*}\""
 
     RG_PREFIX="${RG} --column --line-number --no-heading --color=always --smart-case"
 
-    export FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}'"
+    export FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}' | grep -v '\[NOGREP\]'"
 
-    ${FZF} --bind "change:reload:${RG_PREFIX} {q} || true" \
+    ${FZF} --bind "change:reload:${RG_PREFIX} {q} | grep -v '\[NOGREP\]' || true" \
            --delimiter ":" \
            --bind "enter:execute(${PROGRAM_REALPATH} edit {1}:{2}:{3}),ctrl-s:execute(${PROGRAM_REALPATH} show {1}:)" \
            --ansi --disabled --query "${INITIAL_QUERY}"
