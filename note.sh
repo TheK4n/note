@@ -20,9 +20,13 @@ readonly STATEDIR="${XDG_STATE_HOME}/note"
 mkdir -p "${STATEDIR}"
 readonly LAST_EDIT_NOTE="${STATEDIR}/last"
 
-: "${XDG_RUNTIME_DIR:="${HOME}/.local/state"}"
-readonly RUNTIMEDIR="${XDG_RUNTIME_DIR}/note"
+RUNTIMEDIR="${XDG_RUNTIME_DIR}/note"
+if [ ! -w "${RUNTIMEDIR}" ]; then
+    RUNTIMEDIR="${HOME}/.local/state/note"
+fi
+readonly RUNTIMEDIR
 mkdir -p "${RUNTIMEDIR}"
+
 readonly LOCKFILE="${RUNTIMEDIR}/lock"
 
 readonly ORIGIN="origin"
