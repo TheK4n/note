@@ -306,14 +306,20 @@ cmd_fedit() {
 
     INITIAL_QUERY="${1:-}"
 
+    export FZF_DEFAULT_COMMAND="${PROGRAM_REALPATH} complete fe"
+
     #shellcheck disable=SC2089
     export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-}
 --no-multi
 --preview-window right:60%
---preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\"
---bind enter:execute\(${PROGRAM_REALPATH}\ edit\ \"{1}\"\),ctrl-s:execute\(${PROGRAM_REALPATH}\ show\ \"{1}\"\)"
+--preview=\"${FZF_PAGER} --plain --wrap=never --color=always ${PREFIX}/{}\""
 
-    cmd_complete_notes | ${FZF} --query "${INITIAL_QUERY}"
+    ${FZF} --query "${INITIAL_QUERY}" \
+        --delimiter ":" \
+        --bind "enter:execute(${PROGRAM_REALPATH} edit '{1}')+reload:${FZF_DEFAULT_COMMAND}" \
+        --bind "ctrl-s:execute(${PROGRAM_REALPATH} show '{1}')+reload:${FZF_DEFAULT_COMMAND}" \
+        --bind "ctrl-r:execute(${PROGRAM_REALPATH} rm '{1}')+reload:${FZF_DEFAULT_COMMAND}" \
+
     exit "${EXIT_SUCCESS}"
 }
 
@@ -341,9 +347,13 @@ ${PREFIX}/\${rgout%%:*}\""
 
     export FZF_DEFAULT_COMMAND="${RG_PREFIX} '${INITIAL_QUERY}' | grep -v '\[NOGREP\]'"
 
-    ${FZF} --bind "change:reload:${RG_PREFIX} {q} | grep -v '\[NOGREP\]' || true" \
+    RELOAD="${RG_PREFIX} {q} | grep -v '\[NOGREP\]' || true"
+
+    ${FZF} --bind "change:reload:${RELOAD}" \
            --delimiter ":" \
-           --bind "enter:execute(${PROGRAM_REALPATH} edit {1}:{2}:{3}),ctrl-s:execute(${PROGRAM_REALPATH} show {1}:)" \
+           --bind "enter:execute(${PROGRAM_REALPATH} edit '{1}:{2}:{3}')+reload:${RELOAD}" \
+           --bind "ctrl-s:execute(${PROGRAM_REALPATH} show '{1}')+reload:${RELOAD}" \
+           --bind "ctrl-r:execute(${PROGRAM_REALPATH} rm '{1}')+reload:${RELOAD}" \
            --ansi --disabled --query "${INITIAL_QUERY}"
 
     exit "${EXIT_SUCCESS}"
