@@ -21,7 +21,7 @@ mkdir -p "${STATEDIR}"
 readonly LAST_EDIT_NOTE="${STATEDIR}/last"
 
 RUNTIMEDIR="${XDG_RUNTIME_DIR}/note"
-if [ ! -w "${RUNTIMEDIR}" ]; then
+if ! mkdir -p "${RUNTIMEDIR}" 2>/dev/null; then
     RUNTIMEDIR="${HOME}/.local/state/note"
 fi
 readonly RUNTIMEDIR
