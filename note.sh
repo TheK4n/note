@@ -241,6 +241,8 @@ cmd_edit() {
     notename="${1}"
     notename_without_linecolumn="${notename%%:*}"
 
+    optional_initial_content="${2:-}"
+
     die_if_name_not_entered "${notename_without_linecolumn}"
     die_if_invalid_path "${notename_without_linecolumn}"
 
@@ -253,16 +255,20 @@ cmd_edit() {
         _new_note_flag=false
     fi
 
-    _new_dir_flag=false
-
     _dirname="$(dirname "${notename_without_linecolumn}")"
 
+    _new_dir_flag=false
     if [ ! -d "${PREFIX}/${_dirname}" ]; then
         mkdir -p "${PREFIX}/${_dirname}"
         _new_dir_flag=true
     fi
 
     echo "${notename_without_linecolumn}" > "${LAST_EDIT_NOTE}"
+
+    if [ -n "${optional_initial_content}" ] && "${_new_note_flag}"; then
+        printf '%b' "${optional_initial_content}" > "${PREFIX}/${notename_without_linecolumn}"
+    fi
+
     ${VISUAL} "${PREFIX}/${notename}"
 
     if [ -e "${PREFIX}/${notename_without_linecolumn}" ]; then
@@ -290,13 +296,14 @@ cmd_edit() {
 }
 
 cmd_today() {
-    cmd_edit "daily/$(date "+${DATE_FMT:-%d-%m-%y}").md"
+    cmd_edit "daily/$(date "+${DATE_FMT:-%d-%m-%y}").md" "# Daily note $(date "+${DATE_FMT:-%d.%m.%y}")\n\n\n\ntodo: rename"
 }
 
 cmd_last() {
     if [ ! -e "${LAST_EDIT_NOTE}" ] || [ -z "$(cat "${LAST_EDIT_NOTE}")"  ]; then
         die "No last note" "${EXIT_INVALID_STATE}"
     fi
+
     cmd_edit "$(cat "${LAST_EDIT_NOTE}")"
 }
 
