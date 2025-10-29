@@ -296,7 +296,7 @@ cmd_edit() {
 }
 
 cmd_today() {
-    cmd_edit "daily/$(date "+${DATE_FMT:-%d-%m-%y}").md" "# Daily note $(date "+${DATE_FMT:-%d.%m.%y}")\n\n\n\ntodo: rename"
+    cmd_edit "daily/$(date "+${DATE_FMT:-%d_%m_%y}").md" "# Daily note $(date "+${DATE_FMT:-%d.%m.%y}")\n\n\n\ntodo: rename"
 }
 
 cmd_last() {
